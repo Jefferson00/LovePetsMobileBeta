@@ -1,0 +1,41 @@
+import React, { useCallback } from 'react';
+
+import {Container, MenuButton, CreateNewButton} from './styles';
+import Icon from 'react-native-vector-icons/Feather';
+import { useNavigation } from '@react-navigation/core';
+import { useAuth } from '../../hooks/AuthContext';
+
+const TabMenu : React.FC = () => {
+  const navigation = useNavigation();
+  const {user} = useAuth();
+
+  const handleToProfile = useCallback(() => {
+    if (user){
+      navigation.navigate('Profile');
+    }else{
+      navigation.navigate('SignIn');
+    }
+  }, [user, navigation])
+
+  return(
+    <Container>
+      <MenuButton>
+        <Icon name="home" size={25} color="#ABABAB"/>
+      </MenuButton>
+      <MenuButton>
+        <Icon name="heart" size={25} color="#ABABAB"/>
+      </MenuButton>
+      <CreateNewButton>
+        <Icon name="plus" size={40} color="#FFFFFF"/>
+      </CreateNewButton>
+      <MenuButton>
+        <Icon name="book" size={25} color="#ABABAB"/>
+      </MenuButton>
+      <MenuButton onPress={handleToProfile}>
+        <Icon name="user" size={25} color="#ABABAB"/>
+      </MenuButton>
+    </Container>
+  )
+}
+
+export default TabMenu;
