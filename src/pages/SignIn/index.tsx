@@ -38,7 +38,7 @@ const SignIn: React.FC = () =>{
   const navigation = useNavigation();
   const formRef = useRef<FormHandles>(null);
   const inputPasswordRef = useRef<TextInput>(null);
-  const {signIn} = useAuth();
+  const {signIn, signInGoogle} = useAuth();
 
   const handleSignIn = useCallback(async (data : SignInFormData)=>{
     try {
@@ -143,7 +143,7 @@ const SignIn: React.FC = () =>{
             <Icon name="log-in" size={20} color="#9B0F0F" />
           </LinkSignUpContainer>
 
-          <Button bgColor="#FFFFFF" color="#EA4335">
+          <Button bgColor="#FFFFFF" color="#EA4335" onPress={() => signInGoogle()}>
             Entrar com o gmail
           </Button>
           <Button bgColor="#FFFFFF" color="#1877F2">

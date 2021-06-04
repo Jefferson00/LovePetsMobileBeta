@@ -9,7 +9,7 @@ import  AppProvider  from './hooks';
 
 const App: React.FC = () => (
   <NavigationContainer>
-    <StatusBar barStyle="default" translucent backgroundColor="transparent"/>
+    <StatusBar barStyle="dark-content" translucent backgroundColor="transparent"/>
       <AppProvider>
         <View style={{ flex: 1, backgroundColor: '#FFF6F6' }}>
           <Routes />

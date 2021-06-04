@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "534984563068",
+    "project_id": "love-pets-beta",
+    "storage_bucket": "love-pets-beta.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:534984563068:android:cddceb301d9ad85d136cf9",
+        "android_client_info": {
+          "package_name": "com.lovepetsapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "534984563068-cudl1tedvjrv7aprqh0jlf4c8i8gict2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.lovepetsapp",
+            "certificate_hash": "a8887e82ea4528d8ff2afea56a66362f9712aaf7"
+          }
+        },
+        {
+          "client_id": "534984563068-oco707sll12l1n215j6ucnc5237p41nm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfmTU9vNhDbVkVl4TKbXGcEvuUBaGK3xs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "534984563068-oco707sll12l1n215j6ucnc5237p41nm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

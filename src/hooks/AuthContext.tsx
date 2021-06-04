@@ -3,6 +3,8 @@ import {createContext, useCallback, useContext, useEffect, useState} from 'react
 import api from '../services/api';
 import AsyncStorage from '@react-native-community/async-storage';
 
+import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import GoogleSignin from '../libs/GoogleSignin';
 
 /*interface AuthResponseProps extends firebase.auth.AuthCredential{
     accessToken:string;
@@ -119,12 +121,12 @@ export const AuthProvider : React.FC = ({children}) => {
     }, []);
 
     const updateUser = useCallback(
-        (user: User) => {
+        async (user: User) => {
           setAuthData({
             token: authData.token,
             user,
           });
-         // localStorage.setItem('@LovePetsBeta:user', JSON.stringify(user));
+         await AsyncStorage.setItem('@LovePetsBeta:user', JSON.stringify(user));
         },
         [setAuthData, authData.token],
       );
@@ -142,7 +144,7 @@ export const AuthProvider : React.FC = ({children}) => {
     },[])
 
     const createAndUpdateUser = useCallback(async(data:SignUpData) => {
-        /*try {
+        try {
             await api.post('/users', data );
         } catch (error){
             console.log(error)
@@ -163,10 +165,34 @@ export const AuthProvider : React.FC = ({children}) => {
             }
         }catch (error){
             //setSocialAuthenticationError(error.message);
-        }*/
+        }
     }, [signIn])
 
-    const signInGoogle = useCallback(() =>{
+    const signInGoogle = useCallback(async() =>{
+      // Get the users ID token
+      const { idToken } = await GoogleSignin.signIn();
+
+      // Create a Google credential with the token
+      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+
+      // Sign-in the user with the credential
+      const userCredential = await auth().signInWithCredential(googleCredential);
+
+      console.log(userCredential)
+
+      const user = userCredential.user
+
+      if (user.email && user.displayName){
+        const data: SignUpData ={
+          name: user.displayName,
+          email: user.email,
+          phone: user.phoneNumber ? user.phoneNumber : '',
+          password: user.uid, //verificar se é seguro
+          avatar: user.photoURL,
+        }
+        createAndUpdateUser(data);
+      }
+
         /*try {
             setLoading(true);
             return firebase
