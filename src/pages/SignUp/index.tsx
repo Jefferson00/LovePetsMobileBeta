@@ -174,11 +174,9 @@ const SignUp: React.FC = () => {
                 }}
               />
 
-              <Button onPress={() => {
+              <Button title="Cadastrar" onPress={() => {
                 formRef.current?.submitForm();
-              }}>
-                Cadastrar
-              </Button>
+              }}/>
             </Form>
 
             <LinkSignUpContainer onPress={() => navigation.goBack()}>

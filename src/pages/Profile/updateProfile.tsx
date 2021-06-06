@@ -6,6 +6,8 @@ import * as Yup from 'yup';
 import getValidationErrors from '../../utils/getValidationErrors';
 import { useNavigation } from '@react-navigation/core';
 import { Alert, TextInput } from 'react-native';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import ImageEditor from "@react-native-community/image-editor";
 
 import Icon from 'react-native-vector-icons/Feather';
 
@@ -35,6 +37,8 @@ interface SignUpFormData{
 
 const UpdateProfile: React.FC = () => {
   const {user, updateUser} = useAuth();
+
+  const navigation = useNavigation();
 
   const formRef = useRef<FormHandles>(null);
   const inputNameRef = useRef<TextInput>(null);
@@ -84,6 +88,7 @@ const UpdateProfile: React.FC = () => {
 
       updateUser(response.data);
 
+      navigation.goBack();
       //router.push('/home');
 
       Alert.alert(
@@ -112,6 +117,42 @@ const UpdateProfile: React.FC = () => {
     }
   },[])
 
+  const handleUpdateAvatar = useCallback(() => {
+    launchImageLibrary({
+      mediaType: 'photo',
+      maxHeight: 625,
+      maxWidth: 625,
+    }, response => {
+      if (response.didCancel){
+        return;
+      }
+      if (response.errorCode){
+        Alert.alert('Erro ao atualizar seu aavatar');
+        console.log(response.errorMessage);
+        return;
+      }
+
+      const imageUri = response.assets[0].uri;
+
+      const data = new FormData();
+
+      data.append('avatar', {
+        type: 'image/jpeg',
+        name: `${user.id}.jpg`,
+        uri: imageUri,
+      });
+
+      api.patch('users/avatar', data).then(apiResponse => {
+        updateUser(apiResponse.data);
+      }).catch(() =>{
+        Alert.alert(
+          'Erro na atualização!',
+          'Não foi possível atualizar seu avatar, tente novamente.',
+        );
+      });
+    });
+  }, [user.id, updateUser]);
+
   return(
     <>
       <Header title="Perfil"/>
@@ -127,7 +168,7 @@ const UpdateProfile: React.FC = () => {
           >
             <ImageContainer>
               {user.avatar_url && <UserAvatar source={{uri: user.avatar_url}} />}
-                <UpdateAvatarButton>
+                <UpdateAvatarButton onPress={handleUpdateAvatar}>
                   <Icon name="camera" size={20} color="#FFFFFF"/>
                 </UpdateAvatarButton>
             </ImageContainer>
@@ -210,11 +251,9 @@ const UpdateProfile: React.FC = () => {
                 }}
               />
 
-              <Button onPress={() => {
+              <Button title="Salvar" onPress={() => {
                 formRef.current?.submitForm();
-              }}>
-                Salvar
-              </Button>
+              }}/>
             </Form>
           </KeyboardAwareScrollView>
         </UpdateProfileContainer>

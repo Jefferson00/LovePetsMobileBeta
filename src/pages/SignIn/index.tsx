@@ -13,6 +13,8 @@ import Input from '../../components/Input';
 import Button from '../../components/Button';
 
 import logoImg from '../../assets/logo.png';
+import googleIcon from '../../assets/Google.png';
+import facebookIcon from '../../assets/Facebook.png';
 
 import {
   Container,
@@ -38,7 +40,7 @@ const SignIn: React.FC = () =>{
   const navigation = useNavigation();
   const formRef = useRef<FormHandles>(null);
   const inputPasswordRef = useRef<TextInput>(null);
-  const {signIn, signInGoogle} = useAuth();
+  const {signIn, signInGoogle, signInFacebook} = useAuth();
 
   const handleSignIn = useCallback(async (data : SignInFormData)=>{
     try {
@@ -126,10 +128,9 @@ const SignIn: React.FC = () =>{
               </ForgotPasswordText>
             </ForgotPasswordContainer>
 
-            <Button onPress={() => {
+            <Button title="Entrar" onPress={() => {
               formRef.current?.submitForm();
             }}>
-              Entrar
             </Button>
           </Form>
 
@@ -143,11 +144,22 @@ const SignIn: React.FC = () =>{
             <Icon name="log-in" size={20} color="#9B0F0F" />
           </LinkSignUpContainer>
 
-          <Button bgColor="#FFFFFF" color="#EA4335" onPress={() => signInGoogle()}>
-            Entrar com o gmail
+          <Button
+            bgColor="#FFFFFF"
+            color="#EA4335"
+            onPress={() => signInGoogle()}
+            title= "Entrar com o gmail"
+          >
+            <Image source={googleIcon} style={{marginRight: 16}}/>
+
           </Button>
-          <Button bgColor="#FFFFFF" color="#1877F2">
-            Entrar com o facebook
+          <Button
+            bgColor="#FFFFFF"
+            color="#1877F2"
+            title="Entrar com o facebook"
+            onPress={() => signInFacebook()}
+          >
+            <Image source={facebookIcon} style={{marginRight: 16}}/>
           </Button>
         </KeyboardAwareScrollView>
         </FormContainer>

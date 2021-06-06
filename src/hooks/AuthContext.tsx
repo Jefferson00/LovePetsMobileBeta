@@ -6,6 +6,11 @@ import AsyncStorage from '@react-native-community/async-storage';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import GoogleSignin from '../libs/GoogleSignin';
 
+import { Settings, LoginManager, AccessToken } from 'react-native-fbsdk-next';
+
+Settings.initializeSDK();
+
+
 /*interface AuthResponseProps extends firebase.auth.AuthCredential{
     accessToken:string;
 }*/
@@ -48,8 +53,6 @@ interface AuthContextData{
     signIn: (credentials : SignInCredentials) => Promise<void>;
     signOut: () => void;
     updateUser: (user: User) => void;
-    handleToSignUp: () => void;
-    handleToSignIn: () => void;
     handleToForgotPassword: () => void;
     signInGoogle: () => void;
     signInFacebook: () => void;
@@ -72,6 +75,8 @@ export const AuthProvider : React.FC = ({children}) => {
         ]);
 
         if (token[1] && user[1]) {
+          api.defaults.headers.authorization = `Bearer ${token[1]}`;
+
           setAuthData({token: token[1], user: JSON.parse(user[1])})
         }else{
           setAuthData({} as AuthState);
@@ -83,11 +88,11 @@ export const AuthProvider : React.FC = ({children}) => {
       loadStorageData();
     },[])
 
-    useEffect(() =>{
+    /*useEffect(() =>{
         if(authData.user !== undefined || authData.user === null) {
             setLoading(false);
         }
-    },[authData.user])
+    },[authData.user])*/
 
     const signIn = useCallback(async ({email, password}) =>{
         const response = await api.post('sessions', {
@@ -104,7 +109,7 @@ export const AuthProvider : React.FC = ({children}) => {
 
         api.defaults.headers.authorization = `Bearer ${token}`;
 
-        setAuthData({token, user})
+        setAuthData({token, user});
 
         return user;
      },[])
@@ -116,38 +121,30 @@ export const AuthProvider : React.FC = ({children}) => {
         ]);
 
         setAuthData({} as AuthState);
-
-       // navigation.navigate('SignIn');
     }, []);
 
     const updateUser = useCallback(
-        async (user: User) => {
+      async (user: User) => {
+          await AsyncStorage.setItem('@LovePetsBeta:user', JSON.stringify(user));
           setAuthData({
             token: authData.token,
             user,
           });
-         await AsyncStorage.setItem('@LovePetsBeta:user', JSON.stringify(user));
         },
         [setAuthData, authData.token],
-      );
-
-    const handleToSignUp = useCallback(()=>{
-        //setFormState('signUp');
-    },[]);
-
-    const handleToSignIn = useCallback(() =>{
-        //setFormState('signIn');
-    },[]);
+    );
 
     const handleToForgotPassword = useCallback(() =>{
         //setFormState('forgot');
     },[])
 
     const createAndUpdateUser = useCallback(async(data:SignUpData) => {
+        setLoading(true);
+        console.log(data)
         try {
             await api.post('/users', data );
         } catch (error){
-            console.log(error)
+            console.log('--------------- '+error)
         }
         try {
             const user = await signIn({email: data.email, password: data.password })
@@ -164,21 +161,18 @@ export const AuthProvider : React.FC = ({children}) => {
                 updateUser(response.data);
             }
         }catch (error){
+            console.log('_____ '+error)
             //setSocialAuthenticationError(error.message);
         }
+        setLoading(false);
     }, [signIn])
 
     const signInGoogle = useCallback(async() =>{
-      // Get the users ID token
       const { idToken } = await GoogleSignin.signIn();
 
-      // Create a Google credential with the token
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
 
-      // Sign-in the user with the credential
       const userCredential = await auth().signInWithCredential(googleCredential);
-
-      console.log(userCredential)
 
       const user = userCredential.user
 
@@ -192,60 +186,43 @@ export const AuthProvider : React.FC = ({children}) => {
         }
         createAndUpdateUser(data);
       }
-
-        /*try {
-            setLoading(true);
-            return firebase
-            .auth()
-            .signInWithPopup(new firebase.auth.GoogleAuthProvider())
-            .then((response : ResponseFirebaseProps) => {
-                const user = response.user;
-
-                const data: SignUpData ={
-                    name: user.displayName,
-                    email: user.email,
-                    phone: user.phoneNumber ? user.phoneNumber : '',
-                    password: user.uid, //verificar se é seguro
-                    avatar: user.photoURL,
-                }
-
-                createAndUpdateUser(data);
-            }).catch((error) =>{
-                console.log('errr' + error)
-                setSocialAuthenticationError(error.message);
-            })
-        } finally {
-            setLoading(false);
-        }*/
     },[])
 
-    const signInFacebook = useCallback(() =>{
-        /*try {
-            setLoading(true);
-            return firebase
-            .auth()
-            .signInWithPopup(new firebase.auth.FacebookAuthProvider().addScope('public_profile'))
-            .then((response : ResponseFirebaseProps) => {
-                const token = response.credential.accessToken;
-                const user = response.user;
+    const signInFacebook = useCallback(async() =>{
+       LoginManager.logOut()
 
-                const data: SignUpData ={
-                    name: user.displayName,
-                    email: user.email,
-                    phone: user.phoneNumber ? user.phoneNumber : '',
-                    password: user.uid, //verificar se é seguro
-                    avatar: user.photoURL+`?access_token=${token}`,
-                }
+        const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
 
-                createAndUpdateUser(data);
-            }).catch((error) =>{
-                console.log('errr' + error)
-                setSocialAuthenticationError(error.message);
-            })
-        }finally {
-            setLoading(false);
-            setSocialAuthenticationError(null);
-        }*/
+        if (result.isCancelled) {
+          throw 'User cancelled the login process';
+        }
+
+        const data = await AccessToken.getCurrentAccessToken();
+
+        if (!data) {
+          throw 'Something went wrong obtaining access token';
+        }
+
+        const facebookCredential = auth.FacebookAuthProvider.credential(data.accessToken);
+
+        const userCredential = await auth().signInWithCredential(facebookCredential);
+
+        console.log(userCredential.user);
+
+        const user = userCredential.user;
+        const token = facebookCredential.token;
+
+        if (user.email && user.displayName){
+          const data: SignUpData ={
+            name: user.displayName,
+            email: user.email,
+            phone: user.phoneNumber ? user.phoneNumber : '',
+            password: user.uid, //verificar se é seguro
+            avatar: user.photoURL+`?access_token=${token}`,
+        }
+        createAndUpdateUser(data);
+      }
+
     },[])
 
     return(
@@ -256,8 +233,6 @@ export const AuthProvider : React.FC = ({children}) => {
             signIn,
             signOut,
             updateUser,
-            handleToSignIn,
-            handleToSignUp,
             handleToForgotPassword,
             signInGoogle,
             signInFacebook,

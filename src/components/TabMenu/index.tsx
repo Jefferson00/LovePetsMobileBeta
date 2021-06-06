@@ -15,11 +15,15 @@ const TabMenu : React.FC = () => {
     }else{
       navigation.navigate('SignIn');
     }
+  }, [user, navigation]);
+
+  const handleToHome = useCallback(() => {
+    navigation.navigate('Home');
   }, [user, navigation])
 
   return(
     <Container>
-      <MenuButton>
+      <MenuButton onPress={handleToHome}>
         <Icon name="home" size={25} color="#ABABAB"/>
       </MenuButton>
       <MenuButton>

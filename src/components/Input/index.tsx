@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useRef, useState, useImperativeHandle, f
 import { TextInputProps } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 
-import {Container, InputText} from './styles';
+import {Container, InputText, ErrorContainer, TextError} from './styles';
 
 interface InputProps extends TextInputProps {
   name: string;
@@ -25,6 +25,7 @@ const Input: React.ForwardRefRenderFunction<InputRef, InputProps> = ({name, icon
 
   const [isFocused, setIsFocused] = useState(false);
   const [isFilled, setIsFilled] = useState(false);
+  const [isErrored, setIsErrored] = useState(false);
 
   const handleInputFocus = useCallback(() => {
     setIsFocused(true);
@@ -56,7 +57,11 @@ const Input: React.ForwardRefRenderFunction<InputRef, InputProps> = ({name, icon
       //   inputElementRef.current.clear();
       // },
     })
-  }, [fieldName, registerField])
+  }, [fieldName, registerField]);
+
+  useEffect(() =>{
+    setIsErrored(!!error)
+  },[error, isErrored]);
 
   return(
   <Container isFocused={isFocused} isErrored={!!error}>
@@ -75,6 +80,14 @@ const Input: React.ForwardRefRenderFunction<InputRef, InputProps> = ({name, icon
       }}
       {...rest}
     />
+    {error && (
+      <ErrorContainer>
+          <TextError isVisible={!!error}>
+            {error}
+          </TextError>
+        <Icon name="alert-circle" size={20} color="#d53030"/>
+      </ErrorContainer>
+    )}
   </Container>
   )
 }

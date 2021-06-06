@@ -7,6 +7,10 @@ interface ContainerProps {
   isErrored: boolean;
 }
 
+interface TextErrorProps{
+  isVisible: boolean;
+}
+
 export const Container = styled.View<ContainerProps>`
   width: 100%;
   height: 60px;
@@ -17,6 +21,7 @@ export const Container = styled.View<ContainerProps>`
   margin-bottom: 16px;
   align-items: center;
   flex-direction: row;
+  position: relative;
 
   ${(props) => props.isErrored &&
     css`
@@ -35,4 +40,22 @@ export const InputText = styled(TextInput)`
   color: #350808;
   font-size: 16px;
   font-family: 'Roboto-Regular';
+`
+export const ErrorContainer = styled.View`
+  align-items: flex-end;
+`
+export const TextErrorContainer = styled.View`
+
+`
+export const TextError = styled.Text<TextErrorProps>`
+  opacity: 0;
+  color: #ba1212;
+  font-size: 10px;
+  margin-bottom: 6px;
+
+  ${(props) => props.isVisible &&
+    css`
+      opacity: 1;
+    `
+  }
 `

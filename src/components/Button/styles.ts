@@ -18,6 +18,9 @@ export const ContainerWrapper = styled.View<ContainerProps>`
   border-radius: 20px;
   background: #12BABA;
   margin-bottom: 11px;
+  justify-content: center;
+  align-items: center;
+
 
   ${(props) => props.bgColor &&
     css`
@@ -39,7 +42,7 @@ export const Container = styled(RectButton)`
   align-items: center;
   padding: 0 15px;
   border-radius: 20px;
-
+  flex-direction: row;
 `
 
 export const ButtonText = styled.Text<TextProps>`
