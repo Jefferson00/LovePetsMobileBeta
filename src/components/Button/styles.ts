@@ -4,6 +4,7 @@ import { RectButton } from 'react-native-gesture-handler';
 interface ContainerProps {
   bgColor?: string;
   color?:string;
+  borderColor?:string;
 }
 
 interface TextProps {
@@ -28,9 +29,9 @@ export const ContainerWrapper = styled.View<ContainerProps>`
     `
   }
 
-  ${(props) => props.color &&
+  ${(props) => props.borderColor &&
     css`
-      border-color: ${props.color};
+      border-color: ${props.borderColor};
     `
   }
 `

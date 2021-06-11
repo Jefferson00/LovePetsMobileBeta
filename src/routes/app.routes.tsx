@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Home from '../pages/Home';
 import Profile from '../pages/Profile';
 import UpdateProfile from '../pages/Profile/updateProfile';
+import CreatePet from '../pages/Pets/CreatePet';
 
 
 const App = createStackNavigator();
@@ -20,6 +21,8 @@ const AppRoutes: React.FC = () => (
     <App.Screen name="Home" component={Home}/>
     <App.Screen name="Profile" component={Profile}/>
     <App.Screen name="UpdateProfile" component={UpdateProfile}/>
+    <App.Screen name="CreatePet" component={CreatePet}/>
+
   </App.Navigator>
 );
 
