@@ -1,11 +1,14 @@
 import styled from 'styled-components/native';
 
+import MapView from 'react-native-maps';
+
 export const Container = styled.ScrollView`
   flex: 1;
-  padding: 100px 17px 0 17px;
+  height: 100%;
+  padding: 16px 17px 125px 17px;
 `
 export const FormContainer = styled.View`
-  height: 100%;
+  flex: 1;
   background: #FFFFFF;
   border-width: 1px;
   border-color: #C4C4C4;
@@ -87,9 +90,27 @@ export const GenderContainer = styled.View`
   flex-direction: row;
   width: 100%;
   max-width: 100%;
-  justify-content: space-between;
-  margin-top:15px;
+  justify-content: center;
+  align-items: center;
+  margin: 15px 0;
 `
 export const ButtonWrapper = styled.View`
   width:45%;
+`
+export const LocationContainer = styled.View`
+  margin: 18px 0;
+  position: relative;
+`
+export const InputContainer = styled.View`
+  position: absolute;
+  width: 100%;
+  top:54px;
+  left: 0;
+  z-index: 5;
+  padding: 0 30px;
+`
+export const Map = styled(MapView)`
+  height: 335px;
+  width: 100%;
+  margin-top: 20px;
 `

@@ -18,6 +18,9 @@ import {
   Label,
   GenderContainer,
   ButtonWrapper,
+  LocationContainer,
+  Map,
+  InputContainer,
 } from './styles';
 
 import api from '../../../services/api';
@@ -31,6 +34,7 @@ import Input from '../../../components/Input';
 import { FormHandles } from '@unform/core';
 import { Form } from '@unform/mobile';
 import Button from '../../../components/Button';
+import { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 
 const CreatePet: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
@@ -42,9 +46,8 @@ const CreatePet: React.FC = () => {
   return(
     <>
       <Header title="Novo Anúncio"/>
-      <Container>
-
-            <FormContainer>
+        <Container>
+        <FormContainer>
               <Form
                 ref={formRef}
                 onSubmit={handleCreatePet}
@@ -126,12 +129,12 @@ const CreatePet: React.FC = () => {
                 <GenderContainer>
                   <ButtonWrapper style={{marginRight:17}}>
                     <Button title="Macho" bgColor="#B8EAEA" borderColor='transparent' color="#4E4D4D" >
-                      <Icon name="male" size={20} color='#129CBA'/>
+                      <Icon name="male" size={20} color='#129CBA' style={{marginRight:11}}/>
                     </Button>
                   </ButtonWrapper>
                   <ButtonWrapper>
                     <Button title="Femea" bgColor="#B8EAEA"  borderColor='transparent' color="#4E4D4D">
-                      <Icon name="female" size={20} color='#ED9090'/>
+                      <Icon name="female" size={20} color='#ED9090'  style={{marginRight:11}}/>
                     </Button>
                   </ButtonWrapper>
                 </GenderContainer>
@@ -141,6 +144,38 @@ const CreatePet: React.FC = () => {
                   icon="mail"
                   placeholder="breve descrição"
                 />
+
+                <LocationContainer>
+                  <Label>
+                    Localização
+                  </Label>
+                  <InputContainer>
+                    <Input
+                      name="location"
+                      icon="search"
+                      placeholder="buscar..."
+                    />
+                  </InputContainer>
+                  <Map
+                    provider={PROVIDER_GOOGLE}
+                    initialRegion={{
+                      latitude: -15.780107,
+                      longitude: -48.140725,
+                      latitudeDelta: 0.008,
+                      longitudeDelta: 0.008,
+                    }}
+                  >
+                    <Marker
+                      icon={DefaultImage}
+                      coordinate={{
+                        latitude: -15.780107,
+                        longitude: -48.140725,
+                      }}
+                    />
+                  </Map>
+                </LocationContainer>
+
+                <Button title="Publicar" borderColor="transparent"/>
 
               </FormBody>
 
