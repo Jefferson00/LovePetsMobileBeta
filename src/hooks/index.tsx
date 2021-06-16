@@ -2,10 +2,13 @@ import React from 'react';
 
 import { AuthProvider } from "./AuthContext";
 import { LocationProvider } from "./LocationContext";
+import {FilterProvider} from "./FilterContext";
 
 const AppProvider: React.FC = ({ children }) => (
   <LocationProvider>
-    <AuthProvider>{children}</AuthProvider>
+    <FilterProvider>
+      <AuthProvider>{children}</AuthProvider>
+    </FilterProvider>
   </LocationProvider>
 )
 

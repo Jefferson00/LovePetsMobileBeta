@@ -26,6 +26,7 @@ import {
 } from './styles';
 
 import TabMenu from '../../components/TabMenu';
+import FilterMenu from '../../components/FilterMenu';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 
@@ -37,6 +38,7 @@ import { useLocation } from '../../hooks/LocationContext';
 import { formatDistance } from 'date-fns';
 import { pt } from 'date-fns/locale';
 import { getDistance, convertDistance } from 'geolib';
+import { useFilter } from '../../hooks/FilterContext';
 
 
 interface Pet{
@@ -75,6 +77,7 @@ const Home: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [showCardContent, setShowCardContent] = useState(false);
   const cardContentAnimation = useRef(new Animated.Value(53)).current;
+  const {distance, specieFilter, genderFilter} = useFilter();
 
   let petsArr: Pet[] = [];
 
@@ -84,9 +87,9 @@ const Home: React.FC = () => {
         params: {
           location_lat: currentLocation.lat,
           location_lon: currentLocation.lon,
-          distance: '50',
-          limit: 5,
-          skip:0,
+          distance: distance,
+          species: specieFilter,
+          gender: genderFilter,
         },
       });
       petsArr = response.data;
@@ -100,7 +103,7 @@ const Home: React.FC = () => {
     loadPets();
 
     setWindowWidth((Dimensions.get('window').width)-34);
-  },[currentLocation.lat]);
+  },[currentLocation.lat, specieFilter, genderFilter, distance]);
 
   const setPetImages = useCallback(async(petsArr: Pet[]): Promise<Pet[]> => {
     const mapPromises = petsArr.map(async (pet) => {
@@ -174,6 +177,7 @@ const Home: React.FC = () => {
   return (
     <>
     <Container>
+    <FilterMenu/>
       <ResultList<React.ElementType>
         refreshing={refreshing}
         onRefresh={handleRefreshList}
