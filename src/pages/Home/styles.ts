@@ -1,4 +1,6 @@
-import styled from 'styled-components/native';
+import styled, {css} from 'styled-components/native';
+
+import {Animated} from 'react-native';
 
 export const Container = styled.View`
   flex: 1;
@@ -38,22 +40,29 @@ export const GenderContainer = styled.View`
   justify-content: center;
   align-items: center;
 `
-export const ContentContainer = styled.TouchableOpacity`
+export const ContentContainer = styled(Animated.View)`
   position: absolute;
   bottom: 0;
   width: 100%;
   background: #FFF;
   border-radius: 20px;
+  height:56px;
 `
 export const HeaderContent = styled.View`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  height: 53px;
+  height: 56px;
   padding: 0 19px;
 `
 export const FavButton = styled.TouchableOpacity`
 
+`
+export const ExpandButton = styled.TouchableOpacity`
+  height: 100%;
+  flex:1;
+  align-items: center;
+  justify-content: center;
 `
 
 export const NameContainer = styled.View`
@@ -69,6 +78,7 @@ export const Title = styled.Text`
 export const LocationContainer = styled.View`
   align-items: center;
   justify-content: center;
+  width: 20%;
 `
 
 export const Subtitle = styled.Text`
@@ -78,8 +88,7 @@ export const Subtitle = styled.Text`
 `
 
 export const BodyContent = styled.View`
-  margin: 16px 19px;
-  display: none;
+  margin: 16px 19px 0 19px;
 `
 
 export const DescriptionContainer = styled.View`
@@ -99,10 +108,9 @@ export const ContactContainer = styled.View`
   align-items: center;
 `
 export const UserInformation = styled.View`
- width: 50%;
+ flex: 1;
  flex-direction: row;
  align-items: center;
- justify-content: space-between;
 `
 export const UserAvatar = styled.Image`
   width: 40px;

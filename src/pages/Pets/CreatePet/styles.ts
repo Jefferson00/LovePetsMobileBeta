@@ -1,6 +1,19 @@
-import styled from 'styled-components/native';
+import styled, {css} from 'styled-components/native';
 
 import MapView from 'react-native-maps';
+
+interface UploadButtonProps {
+  size: number;
+  radius:number;
+}
+
+interface SpeciePickerProps{
+  isSelected?: boolean;
+}
+
+interface AgeButtonProps{
+  isSelected?: boolean;
+}
 
 export const Container = styled.ScrollView`
   flex: 1;
@@ -21,11 +34,31 @@ export const FormContainer = styled.View`
 export const FormHeader = styled.View`
   flex-direction: row;
   justify-content: space-between;
+  align-items: center;
 `
 
 export const ImagesContainer = styled.View`
-
+  margin-left: 26px;
 `
+
+export const UploadImageButton = styled.TouchableOpacity<UploadButtonProps>`
+  width: 120px;
+  height: 120px;
+  border-radius: 60px;
+  border-color:#d2d2d2;
+  border-width: 1px;
+  justify-content: center;
+  align-items: center;
+
+  ${(props) => props.size &&
+    css`
+      width: ${props.size+'px'};
+      height: ${props.size+'px'};
+      border-radius: ${props.radius+'px'};
+    `
+  }
+`
+
 export const MainImage = styled.Image`
   width: 120px;
   height: 120px;
@@ -52,13 +85,22 @@ export const SpeciePickerContainer = styled.View`
 export const Column = styled.View`
   margin-right: 26px;
 `
-export const SpeciePicker = styled.TouchableOpacity`
+export const SpeciePicker = styled.TouchableOpacity<SpeciePickerProps>`
   width: 34px;
   height: 34px;
   border-width: 1px;
   border-color: #c4c4c4;
   border-radius: 17px;
   margin-bottom: 15px;
+  align-items: center;
+  justify-content: center;
+
+  ${(props) => props.isSelected &&
+    css`
+      border-color: #12BABA;
+      background: #12BABA;
+    `
+  }
 `
 export const FormBody = styled.View`
   width:100%;
@@ -74,17 +116,29 @@ export const AgeContainer = styled.ScrollView`
   height: 22px;
   margin-bottom: 29px;
 `
-export const AgeButton = styled.TouchableOpacity`
+export const AgeButton = styled.TouchableOpacity<AgeButtonProps>`
   height: 20px;
   background: #B8EAEA;
   margin-right: 10px;
   padding: 0 11px;
   border-radius: 10px;
+
+  ${(props) => props.isSelected &&
+    css`
+      background: #12BABA;
+    `
+  }
 `
-export const AgeText = styled.Text`
+export const AgeText = styled.Text<AgeButtonProps>`
   color:#4E4D4D;
   font-size: 14px;
   font-family:'Roboto-Medium';
+
+  ${(props) => props.isSelected &&
+    css`
+      color: #FFF;
+    `
+  }
 `
 export const GenderContainer = styled.View`
   flex-direction: row;

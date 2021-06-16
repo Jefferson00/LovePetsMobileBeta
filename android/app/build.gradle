@@ -189,6 +189,10 @@ dependencies {
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
 
+    implementation "com.google.android.gms:play-services-base:16.0.1"
+
+    implementation "com.google.android.gms:play-services-location:16.0.0"
+
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
 
     implementation project(':react-native-linear-gradient')
@@ -225,7 +229,8 @@ task copyDownloadableDepsToLibs(type: Copy) {
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
 
 project.ext.vectoricons = [
-    iconFontNames: [ 'MaterialIcons.ttf', 'Feather.ttf', 'Ionicons.ttf']
+    iconFontNames: [ 'MaterialIcons.ttf', 'Feather.ttf', 'Ionicons.ttf', 'MaterialCommunityIcons.ttf']
 ]
 
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
+

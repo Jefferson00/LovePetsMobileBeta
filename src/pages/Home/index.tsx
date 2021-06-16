@@ -22,6 +22,7 @@ import {
   SharedContainer,
   ReportContainer,
   DescriptionContainer,
+  ExpandButton,
 } from './styles';
 
 import TabMenu from '../../components/TabMenu';
@@ -30,7 +31,12 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 import PetImg from '../../assets/pet.png';
 import api from '../../services/api';
-import { Dimensions, FlatList } from 'react-native';
+import { Dimensions, Easing, FlatList, TouchableOpacity, Animated } from 'react-native';
+import { useLocation } from '../../hooks/LocationContext';
+
+import { formatDistance } from 'date-fns';
+import { pt } from 'date-fns/locale';
+import { getDistance, convertDistance } from 'geolib';
 
 
 interface Pet{
@@ -46,8 +52,8 @@ interface Pet{
   location_lon:string;
   city:string;
   state:string;
-  created_at: string;
-  updated_at: string;
+  created_at: Date;
+  updated_at: Date;
   user_name: string;
   user_phone: string;
   user_avatar: string;
@@ -65,14 +71,19 @@ const Home: React.FC = () => {
   const [pets, setPets] = useState<Pet[]>();
   const [windowWidth, setWindowWidth] = useState<number>();
   const bodyContentRef = useRef<any>();
+  const { currentLocation } = useLocation();
+  const [refreshing, setRefreshing] = useState(false);
+  const [showCardContent, setShowCardContent] = useState(false);
+  const cardContentAnimation = useRef(new Animated.Value(53)).current;
 
-  useEffect(()=>{
-    let petsArr: Pet[] = [];
-    async function loadPets(){
+  let petsArr: Pet[] = [];
+
+  async function loadPets(){
+    if(currentLocation.lat && currentLocation.lon){
       const response = await api.get('/pets', {
         params: {
-          location_lat: '-15.785647',
-          location_lon: '-48.141282',
+          location_lat: currentLocation.lat,
+          location_lon: currentLocation.lon,
           distance: '50',
           limit: 5,
           skip:0,
@@ -83,11 +94,13 @@ const Home: React.FC = () => {
 
       setPets(petsArr);
     }
+  }
 
+  useEffect(()=>{
     loadPets();
 
     setWindowWidth((Dimensions.get('window').width)-34);
-  },[]);
+  },[currentLocation.lat]);
 
   const setPetImages = useCallback(async(petsArr: Pet[]): Promise<Pet[]> => {
     const mapPromises = petsArr.map(async (pet) => {
@@ -115,10 +128,55 @@ const Home: React.FC = () => {
     })
   }, [])
 
+  const handleRefreshList = useCallback(() => {
+    setRefreshing(true);
+    loadPets().then(() => setRefreshing(false));
+  }, [loadPets]);
+
+  const handleShow = useCallback(() => {
+    setShowCardContent(!showCardContent);
+
+    if(showCardContent){
+      Animated.timing(cardContentAnimation, {
+        toValue:53,
+        duration:500,
+        useNativeDriver: false,
+      }).start();
+    }else{
+      Animated.timing(cardContentAnimation, {
+        toValue:287,
+        duration:500,
+        useNativeDriver: false,
+      }).start();
+    }
+  }, [cardContentAnimation, showCardContent]);
+
+  const handleDistanceTime = useCallback((create_at:Date) => {
+    const distanceTime  = formatDistance(
+      new Date(create_at),
+      new Date(),
+      {locale: pt, addSuffix: true}
+    );
+
+    return distanceTime;
+  }, [loadPets]);
+
+  const handleDistanceLocation = useCallback((lat: string, lon:string) => {
+    const distance = getDistance(
+      {lat: currentLocation.lat, lon: currentLocation.lon},
+      {lat: lat, lon: lon}
+    )
+
+    const distanceInKm = convertDistance(distance, 'km');
+    return Math.floor(distanceInKm);
+  }, [loadPets]);
+
   return (
     <>
     <Container>
       <ResultList<React.ElementType>
+        refreshing={refreshing}
+        onRefresh={handleRefreshList}
         data={pets}
         showsVerticalScrollIndicator={false}
         renderItem={({item} : {item:Pet}) => (
@@ -149,22 +207,28 @@ const Home: React.FC = () => {
               }
             </GenderContainer>
 
-            <ContentContainer activeOpacity={.9}>
+            <ContentContainer style={{height:cardContentAnimation}}>
               <>
               <HeaderContent>
                 <FavButton>
                   <Icon name="heart-outline" size={25}/>
                 </FavButton>
 
-                <NameContainer>
-                  <Title>{item.name}</Title>
-                  <Subtitle>{item.age}</Subtitle>
-                </NameContainer>
+                <ExpandButton onPress={handleShow}>
+                  <NameContainer>
+                    <Title>{item.name}</Title>
+                    <Subtitle>{item.age}</Subtitle>
+                  </NameContainer>
+                </ExpandButton>
 
-                <LocationContainer>
-                  <Subtitle>48 km</Subtitle>
-                  <Subtitle>há 1 dia(s)</Subtitle>
-                </LocationContainer>
+                  <LocationContainer>
+                    <Subtitle>
+                      {handleDistanceLocation(item.location_lat, item.location_lon)+' km'}
+                    </Subtitle>
+                    <Subtitle style={{textAlign:'center', fontSize:9}}>
+                      {handleDistanceTime(item.created_at)}
+                    </Subtitle>
+                  </LocationContainer>
               </HeaderContent>
 
               <BodyContent>
@@ -180,7 +244,9 @@ const Home: React.FC = () => {
                 <ContactContainer>
                   <UserInformation>
                     <UserAvatar source={{uri:item.user_avatar}}/>
-                    <Description>{item.user_name}</Description>
+                    <Description style={{marginHorizontal:20}}>
+                      {item.user_name}
+                    </Description>
                     <Icon name="logo-whatsapp" size={30} color="#4EC953"/>
                   </UserInformation>
 
@@ -201,7 +267,7 @@ const Home: React.FC = () => {
                   </ReportContainer>
                 </ActionsContainer>
               </BodyContent>
-              </>
+            </>
             </ContentContainer>
           </CardItem>
         )}
