@@ -27,6 +27,14 @@ const TabMenu : React.FC = () => {
     }else{
       navigation.navigate('SignIn');
     }
+  }, [user, navigation]);
+
+  const handleToMyPets = useCallback(() => {
+    if (user){
+      navigation.navigate('MyPets');
+    }else{
+      navigation.navigate('SignIn');
+    }
   }, [user, navigation])
 
   return(
@@ -40,7 +48,7 @@ const TabMenu : React.FC = () => {
       <CreateNewButton onPress={handleToCreatePet}>
         <Icon name="plus" size={40} color="#FFFFFF"/>
       </CreateNewButton>
-      <MenuButton>
+      <MenuButton onPress={handleToMyPets}>
         <Icon name="book" size={25} color="#ABABAB"/>
       </MenuButton>
       <MenuButton onPress={handleToProfile}>

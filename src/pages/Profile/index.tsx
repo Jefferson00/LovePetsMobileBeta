@@ -51,7 +51,7 @@ const Profile: React.FC = () => {
 
       </UserProfileContainer>
 
-      <ProfileButton>
+      <ProfileButton onPress={() => navigation.navigate('MyPets')}>
         <ProfileButtonText>
           Meus Anúncios
         </ProfileButtonText>
