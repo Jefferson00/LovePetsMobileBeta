@@ -31,6 +31,7 @@ import ImageContainer from '../components/ImageContainer';
 import SpecieContainer from '../components/SpecieContainer';
 import AgeContainer from '../components/AgeContainer';
 import LocationContainer from '../components/LocationContainer';
+import ModalComponent from '../../../components/Modal';
 
 
 interface PetImages{
@@ -104,6 +105,10 @@ const CreatePet: React.FC = () => {
   const [latitude, setLatitude] = useState(-15.780107);
   const [longitude, setLongitude] = useState(-48.140725);
   const [images, setImages] = useState<PetImages[]>(defaultImagesValues);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalType, setModalType] = useState<'success' | 'error' | 'info' | 'confirmation'>('error');
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalSubtitle, setModalSubtitle] = useState('');
 
   useEffect(() => {
     if (currentLocation.lat && currentLocation.lon) {
@@ -152,7 +157,7 @@ const CreatePet: React.FC = () => {
       let hasImage;
 
       images.map(image => {
-        if (image.image) {
+        if (image.image_url) {
           hasImage = true;
         }
       });
@@ -173,47 +178,49 @@ const CreatePet: React.FC = () => {
 
         try {
           const petCreated: PetCreated = await (await api.post('/pets', petData)).data;
-          console.log(petCreated.id)
 
           images.map(image => {
-            if (image.image) {
+            if (image.image_url) {
               const dataImage = new FormData();
 
               dataImage.append('image', {
                 type: 'image/jpeg',
                 name: `${petCreated.id + image.id}.jpg`,
-                uri: image.image,
+                uri: image.image_url,
               });
               dataImage.append('pet_id', petCreated.id);
 
               console.log(dataImage)
 
               api.patch('images', dataImage).catch(() => {
-                Alert.alert(
-                  'Erro no upload da imagem',
-                  'Não foi possível cadastrar a imagem, tente novamente.',
-                );
+                setModalTitle('Erro no upload da imagem');
+                setModalSubtitle('Não foi possível cadastrar a imagem, tente novamente.');
+                setModalType('error');
+                setModalVisible(true);
               });
             }
           });
 
-          Alert.alert(
-            'Cadastro realizado!',
-            'Cadastro realizado com sucesso.',
-          );
+          setModalTitle('Cadastro realizado!');
+          setModalSubtitle('Cadastro realizado com sucesso.');
+          setModalType('success');
+          setModalVisible(true);
 
-          navigation.goBack();
+          setTimeout(() => {
+            navigation.goBack();
+          },1000);
+
         } catch (error) {
-          Alert.alert(
-            'Erro no cadastro',
-            'Não foi possível cadastrar o pet, tente novamente.',
-          );
+          setModalTitle('Erro no cadastro');
+          setModalSubtitle('Não foi possível cadastrar o pet, tente novamente.');
+          setModalType('error');
+          setModalVisible(true);
         };
       } else {
-        Alert.alert(
-          'Nenhuma imagem selecionada',
-          'Selecione pelo menos uma imagem do pet',
-        );
+        setModalTitle('Nenhuma imagem selecionada');
+        setModalSubtitle('Selecione pelo menos uma imagem do pet');
+        setModalType('error');
+        setModalVisible(true);
       }
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
@@ -221,20 +228,24 @@ const CreatePet: React.FC = () => {
 
         formRef.current?.setErrors(errors);
 
-        Alert.alert(
-          'Erro no cadastro',
-          'Preencha todos os campos corretamente.',
-        );
+        setModalTitle('Erro no cadastro');
+        setModalSubtitle('Preencha todos os campos corretamente.');
+        setModalType('error');
+        setModalVisible(true);
 
         return;
       }
 
-      Alert.alert(
-        'Erro no cadastro',
-        'Ocorreu um erro no cadastro, tente novamente.',
-      );
+      setModalTitle('Erro no cadastro');
+      setModalSubtitle('Preencha todos os campos corretamente.');
+      setModalType('error');
+      setModalVisible(true);
     }
   }, [age, gender, specie]);
+
+  const handleConfirm = useCallback(async() => {
+    setModalVisible(false);
+  }, []);
 
   return (
     <>
@@ -338,6 +349,24 @@ const CreatePet: React.FC = () => {
 
           </Form>
         </FormContainer>
+          <ModalComponent
+            title={modalTitle}
+            subtitle={modalSubtitle}
+            type={modalType}
+            icon={() => {
+              if(modalType === 'error' ){
+                return (<Icon name="alert-circle" size={45} color='#BA1212'/>)
+              }else if(modalType === 'success' ){
+                return (<Icon name="checkmark-circle" size={45} color='#12BABA'/>)
+              }else{
+                return (<Icon name="alert-circle" size={45} color='#BA1212'/>)
+              }
+            }}
+            transparent
+            visible={modalVisible}
+            handleConfirm={handleConfirm}
+            animationType="slide"
+         />
 
       </Container>
       <TabMenu />

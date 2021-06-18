@@ -1,7 +1,8 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { Alert, Image, TextInput } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Feather';
+import ModalIcon from 'react-native-vector-icons/Ionicons';
 
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Form } from '@unform/mobile';
@@ -10,6 +11,7 @@ import * as Yup from 'yup';
 
 import Input from '../../components/Input';
 import Button from '../../components/Button';
+import ModalComponent from '../../components/Modal';
 
 import logoImg from '../../assets/logo.png';
 
@@ -43,6 +45,11 @@ const SignUp: React.FC = () => {
   const inputPasswordRef = useRef<TextInput>(null);
   const inputConfirmPasswordRef = useRef<TextInput>(null);
 
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalType, setModalType] = useState<'success' | 'error' | 'info' | 'confirmation'>('error');
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalSubtitle, setModalSubtitle] = useState('');
+
   const handleSignUp = useCallback(async (data:SignUpFormData) => {
     try {
       formRef.current?.setErrors({});
@@ -61,12 +68,14 @@ const SignUp: React.FC = () => {
 
       await api.post('/users', data );
 
-      Alert.alert(
-        'Cadastro realizado!',
-        'Cadastro realizado com sucesso.',
-      );
+      setModalTitle('Cadastro realizado!');
+      setModalSubtitle('Cadastro realizado com sucesso.');
+      setModalType('success');
+      setModalVisible(true);
 
-      navigation.goBack();
+      setTimeout(() => {
+        navigation.goBack();
+      }, 1000);
 
     } catch (error) {
       if (error instanceof Yup.ValidationError){
@@ -74,20 +83,24 @@ const SignUp: React.FC = () => {
 
         formRef.current?.setErrors(errors);
 
-        Alert.alert(
-          'Erro no cadastro',
-          'Preencha todos os campos corretamente.',
-        );
+        setModalTitle('Erro no cadastro!');
+        setModalSubtitle('Preencha todos os campos corretamente.');
+        setModalType('error');
+        setModalVisible(true);
 
         return;
       }
 
-      Alert.alert(
-        'Erro no cadastro',
-        'Ocorreu um erro no cadastro, tente novamente.',
-      );
+      setModalTitle('Erro no cadastro!');
+      setModalSubtitle('Preencha todos os campos corretamente.');
+      setModalType('error');
+      setModalVisible(true);
     }
-  },[])
+  },[]);
+
+  const handleConfirm = useCallback(async() => {
+    setModalVisible(false);
+  }, []);
 
   return (
     <LinearGradient colors={['#F43434', '#970D0D']} style={{
@@ -190,6 +203,24 @@ const SignUp: React.FC = () => {
             </LinkSignUpContainer>
 
           </KeyboardAwareScrollView>
+          <ModalComponent
+              title={modalTitle}
+              subtitle={modalSubtitle}
+              type={modalType}
+              icon={() => {
+                if(modalType === 'error' ){
+                  return (<ModalIcon name="alert-circle" size={45} color='#BA1212'/>)
+                }else if(modalType === 'success' ){
+                  return (<ModalIcon name="checkmark-circle" size={45} color='#12BABA'/>)
+                }else{
+                  return (<ModalIcon name="alert-circle" size={45} color='#BA1212'/>)
+                }
+              }}
+              transparent
+              visible={modalVisible}
+              handleConfirm={handleConfirm}
+              animationType="slide"
+          />
         </FormContainer>
       </Container>
     </LinearGradient>

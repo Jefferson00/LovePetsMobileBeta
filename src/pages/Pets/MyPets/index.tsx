@@ -8,6 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import api from '../../../services/api';
 import Header from '../../../components/Header';
 import TabMenu from '../../../components/TabMenu';
+import ModalComponent from '../../../components/Modal';
 
 import {
   Container,
@@ -47,6 +48,8 @@ interface PetsData{
 const MyPets: React.FC = () => {
   const navigation = useNavigation();
   const [myPets, setMyPets] = useState<PetsData[]>([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [pet, setPet] = useState<PetsData>({} as PetsData);
 
   let pets: PetsData[];
   const loadPets = useCallback( async() => {
@@ -77,6 +80,30 @@ const MyPets: React.FC = () => {
       }
       return images;
 }, []);
+
+  const handleDeleteOpenModal = useCallback((pet: PetsData) => {
+    setModalVisible(true);
+    setPet(pet);
+  }, []);
+
+  const handleDeletePet = useCallback(async() => {
+    try {
+      await api.delete(`pets/${pet?.id}`);
+
+      setMyPets(myPets.filter(mypets => mypets.id !== pet.id));
+
+      setModalVisible(false);
+    } catch (error) {
+      setModalVisible(false);
+    }
+  }, [pet]);
+
+  const handleCancelDeletePet = useCallback(() => {
+    setModalVisible(false);
+    setPet({} as PetsData);
+  }, [pet]);
+
+
 
   useEffect(() => {
     loadPets();
@@ -126,7 +153,7 @@ const MyPets: React.FC = () => {
               </EditButton>
 
               <DeleteContainer>
-                <DeleteButton>
+                <DeleteButton onPress={() => handleDeleteOpenModal(item)}>
                   <Icon name="trash" size={20} color='#BA1212'/>
                 </DeleteButton>
               </DeleteContainer>
@@ -136,6 +163,18 @@ const MyPets: React.FC = () => {
 
         </FlatList>
 
+      <ModalComponent
+        title="Deseja excluir seu anúncio?"
+        type="confirmation"
+        icon={() => (
+          <Icon name="alert-circle" size={45} color='#BA1212'/>
+        )}
+        transparent
+        visible={modalVisible}
+        handleCancel={handleCancelDeletePet}
+        handleConfirm={handleDeletePet}
+        animationType="slide"
+      />
       </Container>
       <TabMenu/>
     </>

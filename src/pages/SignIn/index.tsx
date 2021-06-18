@@ -1,7 +1,8 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { Alert, Image, TextInput } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Feather';
+import ModalIcon from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
 import * as Yup from 'yup';
 
@@ -11,6 +12,7 @@ import { FormHandles } from '@unform/core';
 
 import Input from '../../components/Input';
 import Button from '../../components/Button';
+import ModalComponent from '../../components/Modal';
 
 import logoImg from '../../assets/logo.png';
 import googleIcon from '../../assets/Google.png';
@@ -42,6 +44,11 @@ const SignIn: React.FC = () =>{
   const inputPasswordRef = useRef<TextInput>(null);
   const {signIn, signInGoogle, signInFacebook} = useAuth();
 
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalType, setModalType] = useState<'success' | 'error' | 'info' | 'confirmation'>('error');
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalSubtitle, setModalSubtitle] = useState('');
+
   const handleSignIn = useCallback(async (data : SignInFormData)=>{
     try {
       formRef.current?.setErrors({});
@@ -67,13 +74,16 @@ const SignIn: React.FC = () =>{
         return;
       }
 
-      Alert.alert(
-        'Erro na autenticação',
-        'Ocorreu um erro ao fazer login, cheque as credenciais.',
-      );
-
+      setModalTitle('Erro na autenticação');
+      setModalSubtitle('Ocorreu um erro ao fazer login, cheque as credenciais.');
+      setModalType('error');
+      setModalVisible(true);
     }
   },[signIn]);
+
+  const handleConfirm = useCallback(async() => {
+    setModalVisible(false);
+  }, []);
 
   return(
     <LinearGradient colors={['#F43434', '#970D0D']} style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
@@ -162,6 +172,24 @@ const SignIn: React.FC = () =>{
             <Image source={facebookIcon} style={{marginRight: 16}}/>
           </Button>
         </KeyboardAwareScrollView>
+        <ModalComponent
+              title={modalTitle}
+              subtitle={modalSubtitle}
+              type={modalType}
+              icon={() => {
+                if(modalType === 'error' ){
+                  return (<ModalIcon name="alert-circle" size={45} color='#BA1212'/>)
+                }else if(modalType === 'success' ){
+                  return (<ModalIcon name="checkmark-circle" size={45} color='#12BABA'/>)
+                }else{
+                  return (<ModalIcon name="alert-circle" size={45} color='#BA1212'/>)
+                }
+              }}
+              transparent
+              visible={modalVisible}
+              handleConfirm={handleConfirm}
+              animationType="slide"
+          />
         </FormContainer>
       </Container>
     </LinearGradient>
