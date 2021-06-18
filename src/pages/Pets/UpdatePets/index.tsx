@@ -15,7 +15,7 @@ import api from '../../../services/api';
 import * as Yup from 'yup';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp} from '@react-navigation/native';
 import { useLocation } from '../../../hooks/LocationContext';
 import { FormHandles } from '@unform/core';
 import { Form } from '@unform/mobile';
@@ -31,14 +31,6 @@ import ImageContainer from '../components/ImageContainer';
 import SpecieContainer from '../components/SpecieContainer';
 import AgeContainer from '../components/AgeContainer';
 import LocationContainer from '../components/LocationContainer';
-
-
-interface PetImages{
-  id:string;
-  pet_id:string;
-  image:string;
-  image_url:string | null;
-}
 
 interface CreatePetFormData {
   name: string;
@@ -58,59 +50,100 @@ interface PetData {
   state: string;
 }
 
-interface PetCreated {
-  id: string;
+interface PetImages{
+  id:string | null;
+  pet_id:string;
+  image:string;
+  image_url:string | null;
 }
 
 type Specie = 'dog' | 'cat' | 'rodent' | 'rabbit' | 'fish' | 'others';
 type Age = '- 1 ano' | '1 ano' | '2 anos' | '3 anos' | '4 anos' | '+ 4 anos';
 type Gender = 'male' | 'female';
 
-const CreatePet: React.FC = () => {
+interface Pets{
+  id:string;
+  name: string;
+  description: string;
+  species: Specie;
+  age: Age;
+  gender: Gender;
+  is_adopt: boolean;
+  location_lat: string;
+  location_lon: string;
+  city: string;
+  state: string;
+  image: PetImages[];
+}
+
+interface PetCreated {
+  id: string;
+}
+
+
+type ParamRoute = {
+  UpdatePet:{
+    pet: Pets;
+  };
+}
+
+const UpdatePet: React.FC= () => {
   const formRef = useRef<FormHandles>(null);
   const navigation = useNavigation();
-  const { currentLocation } = useLocation();
+  const route = useRoute<RouteProp<ParamRoute, 'UpdatePet'>>();
+
 
   const defaultImagesValues: PetImages[] = [
     {
-      id: '',
+      id: null,
       image_url: null,
       pet_id: '',
       image: ''
     },
     {
-      id: '',
+      id: null,
       image_url: null,
       pet_id: '',
       image: ''
     },
     {
-      id: '',
+      id: null,
       image_url: null,
       pet_id: '',
       image: ''
     },
     {
-      id: '',
+      id: null,
       image_url: null,
       pet_id: '',
       image: ''
     },
   ]
 
-  const [specie, setSpecie] = useState<Specie>('others');
-  const [age, setAge] = useState<Age>('- 1 ano');
-  const [gender, setGender] = useState<Gender>('female');
-  const [latitude, setLatitude] = useState(-15.780107);
-  const [longitude, setLongitude] = useState(-48.140725);
+  const [specie, setSpecie] = useState<Specie>(route.params.pet.species);
+  const [age, setAge] = useState<Age>(route.params.pet.age);
+  const [gender, setGender] = useState<Gender>(route.params.pet.gender);
+  const [latitude, setLatitude] = useState(route.params.pet.location_lat);
+  const [longitude, setLongitude] = useState(route.params.pet.location_lon);
   const [images, setImages] = useState<PetImages[]>(defaultImagesValues);
 
   useEffect(() => {
-    if (currentLocation.lat && currentLocation.lon) {
-      setLatitude(Number(currentLocation.lat));
-      setLongitude(Number(currentLocation.lon));
-    }
-  }, [currentLocation.lat]);
+    const imagesParm = route.params.pet.image;
+
+    let newImages = [...images];
+
+    imagesParm.map((image, index) => {
+      if(image.image_url){
+        newImages[index].image_url = image.image_url;
+        newImages[index].id = image.id;
+      }
+    });
+
+
+
+    setImages(newImages);
+  },[route.params.pet.image]);
+
 
   const handleSelectImage = useCallback((index: number) => {
     launchImageLibrary({
@@ -129,6 +162,8 @@ const CreatePet: React.FC = () => {
 
       const imageUri = response.assets[0].uri;
 
+      console.log(imageUri)
+
       if (imageUri) {
         let newImages = [...images];
         newImages[index].image_url = imageUri;
@@ -138,7 +173,7 @@ const CreatePet: React.FC = () => {
     });
   }, [images]);
 
-  const handleCreatePet = useCallback(async (data: CreatePetFormData) => {
+  const handleUpdatePet = useCallback(async (data: CreatePetFormData) => {
     try {
       formRef.current?.setErrors({});
       const schema = Yup.object().shape({
@@ -152,7 +187,7 @@ const CreatePet: React.FC = () => {
       let hasImage;
 
       images.map(image => {
-        if (image.image) {
+        if (image.image_url) {
           hasImage = true;
         }
       });
@@ -165,48 +200,54 @@ const CreatePet: React.FC = () => {
           gender: gender,
           species: specie,
           is_adopt: false,
-          location_lat: '-15.817489',
-          location_lon: '-48.123465',
+          location_lat: latitude,
+          location_lon: longitude,
           city: 'Ceilândia',
           state: 'DF'
         }
 
         try {
-          const petCreated: PetCreated = await (await api.post('/pets', petData)).data;
-          console.log(petCreated.id)
+          await api.put(`/pets/${route.params.pet.id}`, petData);
 
           images.map(image => {
-            if (image.image) {
+            if (image.image_url) {
               const dataImage = new FormData();
 
               dataImage.append('image', {
                 type: 'image/jpeg',
-                name: `${petCreated.id + image.id}.jpg`,
-                uri: image.image,
+                name: `${route.params.pet.id + image.id}.jpg`,
+                uri: image.image_url,
               });
-              dataImage.append('pet_id', petCreated.id);
+              dataImage.append('pet_id', route.params.pet.id);
 
-              console.log(dataImage)
-
-              api.patch('images', dataImage).catch(() => {
-                Alert.alert(
-                  'Erro no upload da imagem',
-                  'Não foi possível cadastrar a imagem, tente novamente.',
-                );
-              });
+              if (image.id){
+                api.patch(`images/${image.id}`, dataImage).catch(() => {
+                  Alert.alert(
+                    'Erro ao atualizar a imagem',
+                    'Não foi possível atualizar a imagem, tente novamente.',
+                  );
+                });
+              }else{
+                api.patch('images', dataImage).catch(() => {
+                  Alert.alert(
+                    'Erro no upload da imagem',
+                    'Não foi possível cadastrar a imagem, tente novamente.',
+                  );
+                });
+              }
             }
           });
 
           Alert.alert(
-            'Cadastro realizado!',
-            'Cadastro realizado com sucesso.',
+            'Atualizado!',
+            'Atualização realizada com sucesso.',
           );
 
           navigation.goBack();
         } catch (error) {
           Alert.alert(
-            'Erro no cadastro',
-            'Não foi possível cadastrar o pet, tente novamente.',
+            'Erro na atualização',
+            'Não foi possível atualizar o pet, tente novamente.',
           );
         };
       } else {
@@ -222,7 +263,7 @@ const CreatePet: React.FC = () => {
         formRef.current?.setErrors(errors);
 
         Alert.alert(
-          'Erro no cadastro',
+          'Erro na atualização',
           'Preencha todos os campos corretamente.',
         );
 
@@ -230,21 +271,25 @@ const CreatePet: React.FC = () => {
       }
 
       Alert.alert(
-        'Erro no cadastro',
-        'Ocorreu um erro no cadastro, tente novamente.',
+        'Erro na atualização',
+        'Ocorreu um erro no atualização, tente novamente.',
       );
     }
   }, [age, gender, specie]);
 
   return (
     <>
-      <Header title="Novo Anúncio" />
+      <Header title="Atualizar Anúncio" />
       <Container>
         <FormContainer>
           <Form
             ref={formRef}
-            onSubmit={handleCreatePet}
+            onSubmit={handleUpdatePet}
             style={{ marginTop: 33 }}
+            initialData={{
+              name: route.params.pet.name,
+              description: route.params.pet.description,
+            }}
           >
             <FormHeader>
               <ImageContainer
@@ -322,12 +367,12 @@ const CreatePet: React.FC = () => {
               />
 
               <LocationContainer
-                latitude={latitude}
-                longitude={longitude}
+                latitude={Number(latitude)}
+                longitude={Number(longitude)}
               />
 
               <Button
-                title="Publicar"
+                title="Atualizar"
                 borderColor="transparent"
                 onPress={() => {
                   formRef.current?.submitForm();
@@ -345,4 +390,4 @@ const CreatePet: React.FC = () => {
   )
 }
 
-export default CreatePet;
+export default UpdatePet;

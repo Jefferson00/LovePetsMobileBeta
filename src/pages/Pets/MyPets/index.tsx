@@ -3,6 +3,7 @@ import {FlatList} from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 import FeatherIcon from 'react-native-vector-icons/Feather';
+import { useNavigation } from '@react-navigation/native';
 
 import api from '../../../services/api';
 import Header from '../../../components/Header';
@@ -21,19 +22,34 @@ import {
   InfoText,
 } from './styles';
 
-interface PetsData{
+interface PetImages{
   id:string;
-  name:string;
-  age:string;
-  gender:string;
+  pet_id:string;
+  image:string;
   image_url:string | null;
 }
 
+interface PetsData{
+  id:string;
+  name: string;
+  description: string;
+  species: string;
+  age: string;
+  gender: string;
+  is_adopt: boolean;
+  location_lat: string;
+  location_lon: string;
+  city: string;
+  state: string;
+  image: PetImages[];
+}
+
 const MyPets: React.FC = () => {
+  const navigation = useNavigation();
   const [myPets, setMyPets] = useState<PetsData[]>([]);
 
+  let pets: PetsData[];
   const loadPets = useCallback( async() => {
-    let pets: PetsData[]
     const response = await api.get('/pets/me');
 
     pets = response.data;
@@ -45,21 +61,21 @@ const MyPets: React.FC = () => {
   const setPetImages = useCallback(async(petsArr: PetsData[]): Promise<PetsData[]> => {
     const mapPromises = petsArr.map(async (pet) => {
       let petsWithImages = Object.assign({}, pet)
-      petsWithImages.image_url = await findPetImages(pet.id);
+      petsWithImages.image = await findPetImages(pet.id);
 
       return petsWithImages;
     });
     return await Promise.all(mapPromises);
   }, []);
 
-  const findPetImages = useCallback(async(pet_id:string) : Promise<string | null> => {
-    let image_url:string | null = null;
-    try {
-      const response = await api.get(`/images/${pet_id}`)
-      image_url = response.data[0].image_url;
-    } catch (error) {
-    }
-    return image_url;
+  const findPetImages = useCallback(async(pet_id:string) : Promise<PetImages[]> => {
+    let images: PetImages[] = []
+      try {
+        const response = await api.get(`/images/${pet_id}`)
+        images = response.data;
+      } catch (error) {
+      }
+      return images;
 }, []);
 
   useEffect(() => {
@@ -76,8 +92,8 @@ const MyPets: React.FC = () => {
           keyExtractor={(item: PetsData) => item.id}
           renderItem={({item} : {item:PetsData}) => (
             <CardPet>
-              {item.image_url && (
-                <ImagePet source={{uri: item.image_url}}/>
+              {(item.image.length > 0 && item.image[0].image_url) && (
+                <ImagePet source={{uri: item.image[0].image_url}}/>
               )}
               <Title>
                 {item.name}
@@ -98,7 +114,11 @@ const MyPets: React.FC = () => {
                 }
               </InfoContainer>
 
-              <EditButton>
+              <EditButton
+                onPress={() => navigation.navigate('UpdatePets', {
+                  pet: item
+                })}
+              >
                 <FeatherIcon name="edit-2" size={20} color='#12BaBA' style={{marginRight:6}}/>
                 <EditText>
                   Editar anúncio
