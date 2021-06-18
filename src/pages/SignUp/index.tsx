@@ -187,7 +187,7 @@ const SignUp: React.FC = () => {
                 }}
               />
 
-              <Button title="Cadastrar" onPress={() => {
+              <Button borderColor="transparent" title="Cadastrar" onPress={() => {
                 formRef.current?.submitForm();
               }}/>
             </Form>

@@ -21,6 +21,7 @@ import {
   InfoContainer,
   Title,
   InfoText,
+  NoResultView,
 } from './styles';
 
 interface PetImages{
@@ -113,68 +114,77 @@ const MyPets: React.FC = () => {
     <>
     <Header title="Meus Anúncios"/>
       <Container>
-        <FlatList
-          data={myPets}
-          showsVerticalScrollIndicator={false}
-          keyExtractor={(item: PetsData) => item.id}
-          renderItem={({item} : {item:PetsData}) => (
-            <CardPet>
-              {(item.image.length > 0 && item.image[0].image_url) && (
-                <ImagePet source={{uri: item.image[0].image_url}}/>
-              )}
-              <Title>
-                {item.name}
-              </Title>
+        {myPets.length === 0 ?
+          <NoResultView>
+            <Title>
+              Sem anúncios ainda.
+            </Title>
+            <Icon name="paw" size={160} color="#12BABA"/>
+          </NoResultView>
+        :
+        <>
+          <FlatList
+            data={myPets}
+            showsVerticalScrollIndicator={false}
+            keyExtractor={(item: PetsData) => item.id}
+            renderItem={({item} : {item:PetsData}) => (
+              <CardPet>
+                {(item.image.length > 0 && item.image[0].image_url) && (
+                  <ImagePet source={{uri: item.image[0].image_url}}/>
+                )}
+                <Title>
+                  {item.name}
+                </Title>
 
-              <InfoContainer>
-                <InfoText>
-                  {item.age}
-                </InfoText>
+                <InfoContainer>
+                  <InfoText>
+                    {item.age}
+                  </InfoText>
 
-                {item.gender === 'male' ?
-                  (
-                    <Icon name="male" size={20} color='#129CBA' style={{marginLeft:25}}/>
-                  ):
-                  (
-                    <Icon name="female" size={20} color='#ED9090' style={{marginLeft:25}}/>
-                  )
-                }
-              </InfoContainer>
+                  {item.gender === 'male' ?
+                    (
+                      <Icon name="male" size={20} color='#129CBA' style={{marginLeft:25}}/>
+                    ):
+                    (
+                      <Icon name="female" size={20} color='#ED9090' style={{marginLeft:25}}/>
+                    )
+                  }
+                </InfoContainer>
 
-              <EditButton
-                onPress={() => navigation.navigate('UpdatePets', {
-                  pet: item
-                })}
-              >
-                <FeatherIcon name="edit-2" size={20} color='#12BaBA' style={{marginRight:6}}/>
-                <EditText>
-                  Editar anúncio
-                </EditText>
-              </EditButton>
+                <EditButton
+                  onPress={() => navigation.navigate('UpdatePets', {
+                    pet: item
+                  })}
+                >
+                  <FeatherIcon name="edit-2" size={20} color='#12BaBA' style={{marginRight:6}}/>
+                  <EditText>
+                    Editar anúncio
+                  </EditText>
+                </EditButton>
 
-              <DeleteContainer>
-                <DeleteButton onPress={() => handleDeleteOpenModal(item)}>
-                  <Icon name="trash" size={20} color='#BA1212'/>
-                </DeleteButton>
-              </DeleteContainer>
-            </CardPet>
-          )}
-        >
+                <DeleteContainer>
+                  <DeleteButton onPress={() => handleDeleteOpenModal(item)}>
+                    <Icon name="trash" size={20} color='#BA1212'/>
+                  </DeleteButton>
+                </DeleteContainer>
+              </CardPet>
+            )}
+          />
 
-        </FlatList>
-
-      <ModalComponent
-        title="Deseja excluir seu anúncio?"
-        type="confirmation"
-        icon={() => (
-          <Icon name="alert-circle" size={45} color='#BA1212'/>
-        )}
-        transparent
-        visible={modalVisible}
-        handleCancel={handleCancelDeletePet}
-        handleConfirm={handleDeletePet}
-        animationType="slide"
-      />
+          <ModalComponent
+          title="Deseja excluir seu anúncio?"
+          type="confirmation"
+          icon={() => (
+            <Icon name="alert-circle" size={45} color='#BA1212'/>
+            )}
+            transparent
+            visible={modalVisible}
+            handleCancel={handleCancelDeletePet}
+            handleConfirm={handleDeletePet}
+            animationType="slide"
+            />
+        </>
+        }
       </Container>
       <TabMenu/>
     </>

@@ -26,6 +26,8 @@ import Input from '../../components/Input';
 import Button from '../../components/Button';
 import api from '../../services/api';
 
+import DefaultImg from '../../assets/default.png';
+
 interface SignUpFormData{
   name:string;
   email:string;
@@ -167,7 +169,11 @@ const UpdateProfile: React.FC = () => {
             contentContainerStyle={{alignItems:'center'}}
           >
             <ImageContainer>
-              {user.avatar_url && <UserAvatar source={{uri: user.avatar_url}} />}
+              {user.avatar_url ?
+                <UserAvatar source={{uri: user.avatar_url}} />
+                :
+                <UserAvatar source={DefaultImg} />
+              }
                 <UpdateAvatarButton onPress={handleUpdateAvatar}>
                   <Icon name="camera" size={20} color="#FFFFFF"/>
                 </UpdateAvatarButton>

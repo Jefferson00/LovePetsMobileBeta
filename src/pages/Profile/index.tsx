@@ -21,6 +21,8 @@ import { useAuth } from '../../hooks/AuthContext';
 import Header from '../../components/Header';
 import { useNavigation } from '@react-navigation/core';
 
+import DefaultImg from '../../assets/default.png';
+
 const Profile: React.FC = () => {
   const {signOut, user} = useAuth();
   const navigation = useNavigation();
@@ -32,7 +34,11 @@ const Profile: React.FC = () => {
 
       <UserProfileContainer>
         <ImageContainer>
-          {user.avatar_url && <UserAvatar source={{uri: user.avatar_url}} />}
+          {user.avatar_url ?
+            <UserAvatar source={{uri: user.avatar_url}} />
+            :
+            <UserAvatar source={DefaultImg} />
+          }
         </ImageContainer>
 
         <UserName>

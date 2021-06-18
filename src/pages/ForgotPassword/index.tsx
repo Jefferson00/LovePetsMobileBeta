@@ -1,7 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { Alert, Image, TextInput } from 'react-native';
+import { Image } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import Icon from 'react-native-vector-icons/Feather';
 import ModalIcon from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
 import * as Yup from 'yup';
@@ -15,56 +14,51 @@ import Button from '../../components/Button';
 import ModalComponent from '../../components/Modal';
 
 import logoImg from '../../assets/logo.png';
-import googleIcon from '../../assets/Google.png';
-import facebookIcon from '../../assets/Facebook.png';
 
 import {
   Container,
   Title,
   Subtitle,
   FormContainer,
-  ForgotPasswordContainer,
-  ForgotPasswordText,
-  LinkSignUpContainer,
-  LinkSignUpText,
   FormTitle,
 } from './styles';
 import getValidationErrors from '../../utils/getValidationErrors';
-import { useAuth } from '../../hooks/AuthContext';
+import api from '../../services/api';
 
 
-interface SignInFormData {
+interface ForgotFormData {
   email: string;
-  password: string;
 }
 
-const SignIn: React.FC = () =>{
+const ForgotPassword: React.FC = () =>{
   const navigation = useNavigation();
   const formRef = useRef<FormHandles>(null);
-  const inputPasswordRef = useRef<TextInput>(null);
-  const {signIn, signInGoogle, signInFacebook} = useAuth();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalType, setModalType] = useState<'success' | 'error' | 'info' | 'confirmation'>('error');
   const [modalTitle, setModalTitle] = useState('');
   const [modalSubtitle, setModalSubtitle] = useState('');
 
-  const handleSignIn = useCallback(async (data : SignInFormData)=>{
+  const handleSendForgot = useCallback(async (data : ForgotFormData)=>{
     try {
       formRef.current?.setErrors({});
       const schema = Yup.object().shape({
         email: Yup.string().required('E-mail obrigatório!').email('Digite um e-mail válido'),
-        password: Yup.string().required('Senha obrigatória'),
-      })
+      });
 
       await schema.validate(data, {
         abortEarly: false,
       });
 
-      await signIn({
+      await api.post('/password/forgot', {
         email: data.email,
-        password: data.password,
+      }).finally(() => {
+        setModalTitle('Email de recuperação enviado');
+        setModalSubtitle('Cheque sua caixa de entrada');
+        setModalType('success');
+        setModalVisible(true);
       });
+
     } catch (error) {
       if (error instanceof Yup.ValidationError){
         const errors = getValidationErrors(error);
@@ -74,12 +68,12 @@ const SignIn: React.FC = () =>{
         return;
       }
 
-      setModalTitle('Erro na autenticação');
-      setModalSubtitle('Ocorreu um erro ao fazer login, cheque as credenciais.');
+      setModalTitle('Erro');
+      setModalSubtitle('Ocorreu um erro ao enviar o e-mail de recuperação, tente novamente.');
       setModalType('error');
       setModalVisible(true);
     }
-  },[signIn]);
+  },[]);
 
   const handleConfirm = useCallback(async() => {
     setModalVisible(false);
@@ -104,10 +98,10 @@ const SignIn: React.FC = () =>{
             showsVerticalScrollIndicator={false}
           >
           <FormTitle>
-            Login
+            Recuperação de senha
           </FormTitle>
 
-          <Form ref={formRef} onSubmit={handleSignIn}>
+          <Form ref={formRef} onSubmit={handleSendForgot}>
             <Input
               name="email"
               icon="mail"
@@ -115,64 +109,17 @@ const SignIn: React.FC = () =>{
               autoCapitalize="none"
               autoCorrect={false}
               keyboardType="email-address"
-              returnKeyType="next"
-              onSubmitEditing={() =>{
-                inputPasswordRef.current?.focus();
-              }}
-            />
-            <Input
-              ref={inputPasswordRef}
-              name="password"
-              icon="lock"
-              placeholder="senha"
-              secureTextEntry
               returnKeyType="send"
               onSubmitEditing={() =>{
                 formRef.current?.submitForm();
               }}
             />
 
-            <ForgotPasswordContainer onPress={() => navigation.navigate('Forgot')}>
-              <ForgotPasswordText>
-                Esqueci minha senha
-              </ForgotPasswordText>
-            </ForgotPasswordContainer>
-
-            <Button borderColor="transparent" title="Entrar" onPress={() => {
+            <Button borderColor="transparent" title="Enviar" onPress={() => {
               formRef.current?.submitForm();
             }}>
             </Button>
           </Form>
-
-          <LinkSignUpContainer onPress={() => navigation.navigate('SignUp')}>
-            <LinkSignUpText>
-              Não tem uma conta?
-            </LinkSignUpText>
-            <LinkSignUpText style={{fontFamily: 'Roboto-Medium'}}>
-              Cadastre-se
-            </LinkSignUpText>
-            <Icon name="log-in" size={20} color="#9B0F0F" />
-          </LinkSignUpContainer>
-
-          <Button
-            bgColor="#FFFFFF"
-            color="#EA4335"
-            borderColor="#EA4335"
-            onPress={() => signInGoogle()}
-            title= "Entrar com o gmail"
-          >
-            <Image source={googleIcon} style={{marginRight: 16}}/>
-
-          </Button>
-          <Button
-            bgColor="#FFFFFF"
-            borderColor="#1877F2"
-            color="#1877F2"
-            title="Entrar com o facebook"
-            onPress={() => signInFacebook()}
-          >
-            <Image source={facebookIcon} style={{marginRight: 16}}/>
-          </Button>
         </KeyboardAwareScrollView>
         <ModalComponent
               title={modalTitle}
@@ -198,4 +145,4 @@ const SignIn: React.FC = () =>{
   );
 }
 
-export default SignIn;
+export default ForgotPassword;

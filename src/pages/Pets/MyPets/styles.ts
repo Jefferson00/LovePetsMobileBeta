@@ -59,3 +59,8 @@ export const DeleteContainer = styled.View`
 export const DeleteButton = styled.TouchableOpacity`
 
 `
+export const NoResultView = styled.View`
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+`
