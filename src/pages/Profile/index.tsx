@@ -63,7 +63,7 @@ const Profile: React.FC = () => {
         </ProfileButtonText>
       </ProfileButton>
 
-      <ProfileButton>
+      <ProfileButton onPress={() => navigation.navigate('FavPets')}>
         <ProfileButtonText>
           Meus Favoritos
         </ProfileButtonText>

@@ -32,13 +32,18 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 import PetImg from '../../assets/pet.png';
 import api from '../../services/api';
-import { Dimensions, Easing, FlatList, TouchableOpacity, Animated } from 'react-native';
-import { useLocation } from '../../hooks/LocationContext';
+import { Dimensions, FlatList, Animated, TouchableOpacity } from 'react-native';
 
-import { formatDistance } from 'date-fns';
-import { pt } from 'date-fns/locale';
-import { getDistance, convertDistance } from 'geolib';
+import { useLocation } from '../../hooks/LocationContext';
 import { useFilter } from '../../hooks/FilterContext';
+import { usePets } from '../../hooks/PetsContext';
+import { useAuth } from '../../hooks/AuthContext';
+
+import getDistanceLocation  from '../../utils/getDistanceLocation';
+import getDistanceTime from '../../utils/getDistanceTime';
+import handleContactWhatsapp from '../../utils/handleContactWhatsapp';
+import handleShare from '../../utils/handleShare';
+
 
 
 interface Pet{
@@ -70,14 +75,17 @@ interface PetImages{
 }
 
 const Home: React.FC = () => {
+  const { favPets, loadFavs } = usePets();
+  const { user } = useAuth();
+  const { currentLocation } = useLocation();
+  const {distance, specieFilter, genderFilter} = useFilter();
+
+  const cardContentAnimation = useRef(new Animated.Value(53)).current;
+
   const [pets, setPets] = useState<Pet[]>();
   const [windowWidth, setWindowWidth] = useState<number>();
-  const bodyContentRef = useRef<any>();
-  const { currentLocation } = useLocation();
   const [refreshing, setRefreshing] = useState(false);
   const [showCardContent, setShowCardContent] = useState(false);
-  const cardContentAnimation = useRef(new Animated.Value(53)).current;
-  const {distance, specieFilter, genderFilter} = useFilter();
 
   let petsArr: Pet[] = [];
 
@@ -99,12 +107,6 @@ const Home: React.FC = () => {
     }
   }
 
-  useEffect(()=>{
-    loadPets();
-
-    setWindowWidth((Dimensions.get('window').width)-34);
-  },[currentLocation.lat, specieFilter, genderFilter, distance]);
-
   const setPetImages = useCallback(async(petsArr: Pet[]): Promise<Pet[]> => {
     const mapPromises = petsArr.map(async (pet) => {
       let petsWithImages = Object.assign({}, pet)
@@ -113,7 +115,7 @@ const Home: React.FC = () => {
       return petsWithImages;
     });
     return await Promise.all(mapPromises);
-  }, [])
+  }, []);
 
   const findPetImages = useCallback(async(pet_id:string) : Promise<PetImages[]> => {
       let images: PetImages[] = []
@@ -123,13 +125,7 @@ const Home: React.FC = () => {
       } catch (error) {
       }
       return images;
-  }, [])
-
-  const handleShowContent = useCallback(() => {
-    bodyContentRef.current.setNativeProps({
-      opacity: 0
-    })
-  }, [])
+  }, []);
 
   const handleRefreshList = useCallback(() => {
     setRefreshing(true);
@@ -154,25 +150,26 @@ const Home: React.FC = () => {
     }
   }, [cardContentAnimation, showCardContent]);
 
-  const handleDistanceTime = useCallback((create_at:Date) => {
-    const distanceTime  = formatDistance(
-      new Date(create_at),
-      new Date(),
-      {locale: pt, addSuffix: true}
-    );
+  const handleCreateFav = useCallback(async (pets_id:string) => {
+    try {
+      await api.post('/favs', {pets_id});
+    } catch (error) {
+      if(favPets){
+        const favToDelete = favPets.find(fav => (fav.pet_id === pets_id && fav.user_id === user.id));
 
-    return distanceTime;
-  }, [loadPets]);
+        if(favToDelete){
+          await api.delete(`/favs/${favToDelete.id}`);
+        }
+      }
+    }
+    loadFavs();
+  },[favPets]);
 
-  const handleDistanceLocation = useCallback((lat: string, lon:string) => {
-    const distance = getDistance(
-      {lat: currentLocation.lat, lon: currentLocation.lon},
-      {lat: lat, lon: lon}
-    )
+  useEffect(()=>{
+    loadPets();
 
-    const distanceInKm = convertDistance(distance, 'km');
-    return Math.floor(distanceInKm);
-  }, [loadPets]);
+    setWindowWidth((Dimensions.get('window').width)-34);
+  },[currentLocation.lat, specieFilter, genderFilter, distance]);
 
   return (
     <>
@@ -214,8 +211,12 @@ const Home: React.FC = () => {
             <ContentContainer style={{height:cardContentAnimation}}>
               <>
               <HeaderContent>
-                <FavButton>
-                  <Icon name="heart-outline" size={25}/>
+                <FavButton onPress={() => handleCreateFav(item.id)}>
+                  {favPets.find(fav => (fav.pet_id === item.id && fav.user_id === user.id)) ?
+                    <Icon name="heart" size={25} color="#F43434"/>
+                    :
+                    <Icon name="heart-outline" size={25} color="#F43434"/>
+                  }
                 </FavButton>
 
                 <ExpandButton onPress={handleShow}>
@@ -227,10 +228,15 @@ const Home: React.FC = () => {
 
                   <LocationContainer>
                     <Subtitle>
-                      {handleDistanceLocation(item.location_lat, item.location_lon)+' km'}
+                      {getDistanceLocation({
+                        fromLat: currentLocation.lat,
+                        fromLon: currentLocation.lon,
+                        toLat: item.location_lat,
+                        toLon: item.location_lon,
+                      })+' km'}
                     </Subtitle>
                     <Subtitle style={{textAlign:'center', fontSize:9}}>
-                      {handleDistanceTime(item.created_at)}
+                      {getDistanceTime(item.created_at)}
                     </Subtitle>
                   </LocationContainer>
               </HeaderContent>
@@ -251,7 +257,9 @@ const Home: React.FC = () => {
                     <Description style={{marginHorizontal:20}}>
                       {item.user_name}
                     </Description>
-                    <Icon name="logo-whatsapp" size={30} color="#4EC953"/>
+                    <TouchableOpacity onPress={() => handleContactWhatsapp(item.name, item.user_phone)}>
+                      <Icon name="logo-whatsapp" size={30} color="#4EC953"/>
+                    </TouchableOpacity>
                   </UserInformation>
 
                   <Subtitle>
@@ -260,7 +268,7 @@ const Home: React.FC = () => {
                 </ContactContainer>
 
                 <ActionsContainer>
-                  <SharedContainer>
+                  <SharedContainer onPress={handleShare}>
                     <Icon name="share-social" size={25} color="#12BABA" style={{marginRight:6}}/>
                     <Subtitle>Compartilhar</Subtitle>
                   </SharedContainer>
