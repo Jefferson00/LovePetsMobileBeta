@@ -37,7 +37,8 @@
     "react-native-screens": "^3.3.0",
     "react-native-vector-icons": "^8.1.0",
     "styled-components": "^5.3.0",
-    "yup": "^0.32.9"
+    "yup": "^0.32.9",
+    "yup-phone": "^1.2.19"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { Alert, Image, TextInput } from 'react-native';
+import { ActivityIndicator, Image, TextInput } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Feather';
 import ModalIcon from 'react-native-vector-icons/Ionicons';
@@ -8,6 +8,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { Form } from '@unform/mobile';
 import { FormHandles } from '@unform/core';
 import * as Yup from 'yup';
+import 'yup-phone';
 
 import Input from '../../components/Input';
 import Button from '../../components/Button';
@@ -46,20 +47,22 @@ const SignUp: React.FC = () => {
   const inputConfirmPasswordRef = useRef<TextInput>(null);
 
   const [modalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [modalType, setModalType] = useState<'success' | 'error' | 'info' | 'confirmation'>('error');
   const [modalTitle, setModalTitle] = useState('');
   const [modalSubtitle, setModalSubtitle] = useState('');
 
   const handleSignUp = useCallback(async (data:SignUpFormData) => {
+    setLoading(true);
     try {
       formRef.current?.setErrors({});
       const schema = Yup.object().shape({
         email: Yup.string().required('E-mail obrigatório!').email('Digite um e-mail válido'),
         name: Yup.string().required('Nome é obrigatório!'),
-        password: Yup.string().required('Senha obrigatória'),
+        password: Yup.string().required('Senha obrigatória').min(6, 'Mínimo de 6 caracteres'),
         confirmPassword: Yup.string().required('Senha obrigatória').equals(
           [Yup.ref('password')], 'a senha deve ser igual'),
-        phone: Yup.string().required('Telefone é obrigatório!'),
+        phone: Yup.string().phone('BR', false, 'formato incorreto, Ex: 61 99999-5555').required('Telefone é obrigatório!'),
       })
 
       await schema.validate(data, {
@@ -68,6 +71,7 @@ const SignUp: React.FC = () => {
 
       await api.post('/users', data );
 
+      setLoading(false);
       setModalTitle('Cadastro realizado!');
       setModalSubtitle('Cadastro realizado com sucesso.');
       setModalType('success');
@@ -87,6 +91,7 @@ const SignUp: React.FC = () => {
         setModalSubtitle('Preencha todos os campos corretamente.');
         setModalType('error');
         setModalVisible(true);
+        setLoading(false);
 
         return;
       }
@@ -95,6 +100,7 @@ const SignUp: React.FC = () => {
       setModalSubtitle('Preencha todos os campos corretamente.');
       setModalType('error');
       setModalVisible(true);
+      setLoading(false);
     }
   },[]);
 
@@ -125,6 +131,9 @@ const SignUp: React.FC = () => {
             scrollEnabled
             showsVerticalScrollIndicator={false}
           >
+            {loading && (
+              <ActivityIndicator size="large" color="#F43434"/>
+            )}
             <FormTitle>
               Cadastro
             </FormTitle>

@@ -31,6 +31,7 @@ import {
 } from './styles';
 import getValidationErrors from '../../utils/getValidationErrors';
 import { useAuth } from '../../hooks/AuthContext';
+import { useEffect } from 'react';
 
 
 interface SignInFormData {
@@ -42,7 +43,7 @@ const SignIn: React.FC = () =>{
   const navigation = useNavigation();
   const formRef = useRef<FormHandles>(null);
   const inputPasswordRef = useRef<TextInput>(null);
-  const {signIn, signInGoogle, signInFacebook} = useAuth();
+  const {signIn, signInGoogle, signInFacebook, socialAuthenticationError} = useAuth();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalType, setModalType] = useState<'success' | 'error' | 'info' | 'confirmation'>('error');
@@ -84,6 +85,15 @@ const SignIn: React.FC = () =>{
   const handleConfirm = useCallback(async() => {
     setModalVisible(false);
   }, []);
+
+  useEffect(() => {
+    if(socialAuthenticationError){
+      setModalTitle('Erro na autenticação');
+      setModalSubtitle('Email já utilizado');
+      setModalType('error');
+      setModalVisible(true);
+    }
+  },[socialAuthenticationError])
 
   return(
     <LinearGradient colors={['#F43434', '#970D0D']} style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>

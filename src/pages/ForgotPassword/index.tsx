@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { Image } from 'react-native';
+import { Image, ActivityIndicator, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import ModalIcon from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
@@ -35,11 +35,13 @@ const ForgotPassword: React.FC = () =>{
   const formRef = useRef<FormHandles>(null);
 
   const [modalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [modalType, setModalType] = useState<'success' | 'error' | 'info' | 'confirmation'>('error');
   const [modalTitle, setModalTitle] = useState('');
   const [modalSubtitle, setModalSubtitle] = useState('');
 
   const handleSendForgot = useCallback(async (data : ForgotFormData)=>{
+    setLoading(true);
     try {
       formRef.current?.setErrors({});
       const schema = Yup.object().shape({
@@ -57,6 +59,7 @@ const ForgotPassword: React.FC = () =>{
         setModalSubtitle('Cheque sua caixa de entrada');
         setModalType('success');
         setModalVisible(true);
+        setLoading(false);
       });
 
     } catch (error) {
@@ -72,6 +75,7 @@ const ForgotPassword: React.FC = () =>{
       setModalSubtitle('Ocorreu um erro ao enviar o e-mail de recuperação, tente novamente.');
       setModalType('error');
       setModalVisible(true);
+      setLoading(false);
     }
   },[]);
 
@@ -139,6 +143,11 @@ const ForgotPassword: React.FC = () =>{
               handleConfirm={handleConfirm}
               animationType="slide"
           />
+          {loading &&
+            <View style={{flex:1}}>
+              <ActivityIndicator size="large" color="#F43434"/>
+            </View>
+          }
         </FormContainer>
       </Container>
     </LinearGradient>

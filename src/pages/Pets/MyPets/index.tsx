@@ -1,14 +1,16 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {FlatList} from 'react-native';
+import { FlatList, ActivityIndicator, View } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import { useNavigation } from '@react-navigation/native';
+import { usePets } from '../../../hooks/PetsContext';
 
-import api from '../../../services/api';
 import Header from '../../../components/Header';
 import TabMenu from '../../../components/TabMenu';
 import ModalComponent from '../../../components/Modal';
+
+import { IPetsData } from '../../../@types/Pets/IPetsData';
 
 import {
   Container,
@@ -24,91 +26,59 @@ import {
   NoResultView,
 } from './styles';
 
-interface PetImages{
-  id:string;
-  pet_id:string;
-  image:string;
-  image_url:string | null;
-}
-
-interface PetsData{
-  id:string;
-  name: string;
-  description: string;
-  species: string;
-  age: string;
-  gender: string;
-  is_adopt: boolean;
-  location_lat: string;
-  location_lon: string;
-  city: string;
-  state: string;
-  image: PetImages[];
-}
 
 const MyPets: React.FC = () => {
   const navigation = useNavigation();
-  const [myPets, setMyPets] = useState<PetsData[]>([]);
+  const {
+     myPets,
+     loadMyPets,
+     handleSelectMyPet,
+     handleDeleteMyPet,
+     handleUnselectMyPet,
+     } = usePets();
+
   const [modalVisible, setModalVisible] = useState(false);
-  const [pet, setPet] = useState<PetsData>({} as PetsData);
+  const [loading, setLoading] = useState(false);
 
-  let pets: PetsData[];
-  const loadPets = useCallback( async() => {
-    const response = await api.get('/pets/me');
-
-    pets = response.data;
-    pets = await setPetImages(pets);
-
-    setMyPets(pets);
-  }, []);
-
-  const setPetImages = useCallback(async(petsArr: PetsData[]): Promise<PetsData[]> => {
-    const mapPromises = petsArr.map(async (pet) => {
-      let petsWithImages = Object.assign({}, pet)
-      petsWithImages.image = await findPetImages(pet.id);
-
-      return petsWithImages;
-    });
-    return await Promise.all(mapPromises);
-  }, []);
-
-  const findPetImages = useCallback(async(pet_id:string) : Promise<PetImages[]> => {
-    let images: PetImages[] = []
-      try {
-        const response = await api.get(`/images/${pet_id}`)
-        images = response.data;
-      } catch (error) {
-      }
-      return images;
-}, []);
-
-  const handleDeleteOpenModal = useCallback((pet: PetsData) => {
+  const handleDeleteOpenModal = useCallback((pet: IPetsData) => {
     setModalVisible(true);
-    setPet(pet);
-  }, []);
+    handleSelectMyPet(pet);
+  }, [handleSelectMyPet]);
 
   const handleDeletePet = useCallback(async() => {
-    try {
-      await api.delete(`pets/${pet?.id}`);
-
-      setMyPets(myPets.filter(mypets => mypets.id !== pet.id));
-
-      setModalVisible(false);
-    } catch (error) {
-      setModalVisible(false);
-    }
-  }, [pet]);
+    await handleDeleteMyPet();
+    setModalVisible(false);
+  }, [handleDeleteMyPet]);
 
   const handleCancelDeletePet = useCallback(() => {
     setModalVisible(false);
-    setPet({} as PetsData);
-  }, [pet]);
-
-
+    handleUnselectMyPet();
+  }, [handleUnselectMyPet]);
 
   useEffect(() => {
-    loadPets();
-  },[])
+
+    async function load(){
+      await loadMyPets();
+    }
+    setLoading(true);
+
+    load();
+
+    setLoading(false);
+    console.log('v')
+  },[myPets]);
+
+  if(loading){
+    return (
+      <View style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+      }}>
+        <ActivityIndicator size="large" color="#F43434"/>
+      </View>
+    )
+  }
 
   return (
     <>
@@ -126,11 +96,11 @@ const MyPets: React.FC = () => {
           <FlatList
             data={myPets}
             showsVerticalScrollIndicator={false}
-            keyExtractor={(item: PetsData) => item.id}
-            renderItem={({item} : {item:PetsData}) => (
+            keyExtractor={(item: IPetsData) => item.id}
+            renderItem={({item} : {item:IPetsData}) => (
               <CardPet>
-                {(item.image.length > 0 && item.image[0].image_url) && (
-                  <ImagePet source={{uri: item.image[0].image_url}}/>
+                {(item.images.length > 0 && item.images[0].image_url) && (
+                  <ImagePet source={{uri: item.images[0].image_url}}/>
                 )}
                 <Title>
                   {item.name}

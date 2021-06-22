@@ -49,7 +49,7 @@ interface SignUpData{
 interface AuthContextData{
     user: User;
     loading:boolean;
-    socialAuthenticationError: string | null;
+    socialAuthenticationError: boolean;
     signIn: (credentials : SignInCredentials) => Promise<void>;
     signOut: () => void;
     updateUser: (user: User) => void;
@@ -63,7 +63,7 @@ export const AuthContext = createContext<AuthContextData>({} as AuthContextData)
 export const AuthProvider : React.FC = ({children}) => {
     const [authData, setAuthData] = useState<AuthState>({} as AuthState);
     const [loading, setLoading] = useState(true);
-    const [socialAuthenticationError, setSocialAuthenticationError] = useState<string | null>(null);
+    const [socialAuthenticationError, setSocialAuthenticationError] = useState(false);
 
     //const navigation = useNavigation();
 
@@ -115,12 +115,14 @@ export const AuthProvider : React.FC = ({children}) => {
      },[])
 
     const signOut = useCallback(async() => {
+        setLoading(true);
         await AsyncStorage.multiRemove([
           '@LovePetsBeta:token',
           '@LovePetsBeta:user'
         ]);
 
         setAuthData({} as AuthState);
+        setLoading(false);
     }, []);
 
     const updateUser = useCallback(
@@ -168,49 +170,15 @@ export const AuthProvider : React.FC = ({children}) => {
     }, [signIn])
 
     const signInGoogle = useCallback(async() =>{
-      const { idToken } = await GoogleSignin.signIn();
+      setSocialAuthenticationError(false);
+      try {
+        const { idToken } = await GoogleSignin.signIn();
 
-      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+        const googleCredential = auth.GoogleAuthProvider.credential(idToken);
 
-      const userCredential = await auth().signInWithCredential(googleCredential);
+        const userCredential = await auth().signInWithCredential(googleCredential);
 
-      const user = userCredential.user
-
-      if (user.email && user.displayName){
-        const data: SignUpData ={
-          name: user.displayName,
-          email: user.email,
-          phone: user.phoneNumber ? user.phoneNumber : '',
-          password: user.uid, //verificar se é seguro
-          avatar: user.photoURL,
-        }
-        createAndUpdateUser(data);
-      }
-    },[])
-
-    const signInFacebook = useCallback(async() =>{
-       LoginManager.logOut()
-
-        const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
-
-        if (result.isCancelled) {
-          throw 'User cancelled the login process';
-        }
-
-        const data = await AccessToken.getCurrentAccessToken();
-
-        if (!data) {
-          throw 'Something went wrong obtaining access token';
-        }
-
-        const facebookCredential = auth.FacebookAuthProvider.credential(data.accessToken);
-
-        const userCredential = await auth().signInWithCredential(facebookCredential);
-
-        console.log(userCredential.user);
-
-        const user = userCredential.user;
-        const token = facebookCredential.token;
+        const user = userCredential.user
 
         if (user.email && user.displayName){
           const data: SignUpData ={
@@ -218,11 +186,54 @@ export const AuthProvider : React.FC = ({children}) => {
             email: user.email,
             phone: user.phoneNumber ? user.phoneNumber : '',
             password: user.uid, //verificar se é seguro
-            avatar: user.photoURL+`?access_token=${token}`,
+            avatar: user.photoURL,
+          }
+          createAndUpdateUser(data);
         }
-        createAndUpdateUser(data);
+      } catch (error) {
+        setSocialAuthenticationError(true);
       }
+    },[])
 
+    const signInFacebook = useCallback(async() =>{
+        setSocialAuthenticationError(false);
+        try {
+            LoginManager.logOut();
+
+            const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
+
+            if (result.isCancelled) {
+              throw 'User cancelled the login process';
+            }
+
+            const data = await AccessToken.getCurrentAccessToken();
+
+            if (!data) {
+              throw 'Something went wrong obtaining access token';
+            }
+
+            const facebookCredential = auth.FacebookAuthProvider.credential(data.accessToken);
+
+            const userCredential = await auth().signInWithCredential(facebookCredential);
+
+            console.log(userCredential.user);
+
+            const user = userCredential.user;
+            const token = facebookCredential.token;
+
+            if (user.email && user.displayName){
+              const data: SignUpData ={
+                name: user.displayName,
+                email: user.email,
+                phone: user.phoneNumber ? user.phoneNumber : '',
+                password: user.uid, //verificar se é seguro
+                avatar: user.photoURL+`?access_token=${token}`,
+            }
+            createAndUpdateUser(data);
+          }
+        } catch (error) {
+          setSocialAuthenticationError(true);
+        }
     },[])
 
     return(

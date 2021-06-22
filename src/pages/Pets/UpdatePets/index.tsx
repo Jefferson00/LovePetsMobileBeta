@@ -32,6 +32,8 @@ import SpecieContainer from '../components/SpecieContainer';
 import AgeContainer from '../components/AgeContainer';
 import LocationContainer from '../components/LocationContainer';
 
+import { IPetsData , IPetImages, Age, Gender, Specie} from '../../../@types/Pets/IPetsData';
+
 interface CreatePetFormData {
   name: string;
   description: string;
@@ -50,40 +52,9 @@ interface PetData {
   state: string;
 }
 
-interface PetImages{
-  id:string | null;
-  pet_id:string;
-  image:string;
-  image_url:string | null;
-}
-
-type Specie = 'dog' | 'cat' | 'rodent' | 'rabbit' | 'fish' | 'others';
-type Age = '- 1 ano' | '1 ano' | '2 anos' | '3 anos' | '4 anos' | '+ 4 anos';
-type Gender = 'male' | 'female';
-
-interface Pets{
-  id:string;
-  name: string;
-  description: string;
-  species: Specie;
-  age: Age;
-  gender: Gender;
-  is_adopt: boolean;
-  location_lat: string;
-  location_lon: string;
-  city: string;
-  state: string;
-  image: PetImages[];
-}
-
-interface PetCreated {
-  id: string;
-}
-
-
 type ParamRoute = {
   UpdatePet:{
-    pet: Pets;
+    pet: IPetsData;
   };
 }
 
@@ -93,7 +64,7 @@ const UpdatePet: React.FC= () => {
   const route = useRoute<RouteProp<ParamRoute, 'UpdatePet'>>();
 
 
-  const defaultImagesValues: PetImages[] = [
+  const defaultImagesValues: IPetImages[] = [
     {
       id: null,
       image_url: null,
@@ -125,10 +96,10 @@ const UpdatePet: React.FC= () => {
   const [gender, setGender] = useState<Gender>(route.params.pet.gender);
   const [latitude, setLatitude] = useState(route.params.pet.location_lat);
   const [longitude, setLongitude] = useState(route.params.pet.location_lon);
-  const [images, setImages] = useState<PetImages[]>(defaultImagesValues);
+  const [images, setImages] = useState<IPetImages[]>(defaultImagesValues);
 
   useEffect(() => {
-    const imagesParm = route.params.pet.image;
+    const imagesParm = route.params.pet.images;
 
     let newImages = [...images];
 
@@ -142,7 +113,7 @@ const UpdatePet: React.FC= () => {
 
 
     setImages(newImages);
-  },[route.params.pet.image]);
+  },[route.params.pet.images]);
 
 
   const handleSelectImage = useCallback((index: number) => {

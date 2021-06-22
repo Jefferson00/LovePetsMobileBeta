@@ -19,6 +19,8 @@ import getDistanceTime from '../../../utils/getDistanceTime';
 import handleContactWhatsapp from '../../../utils/handleContactWhatsapp';
 import handleShare from '../../../utils/handleShare';
 
+import { IPetsData, IPetImages } from '../../../@types/Pets/IPetsData';
+
 import {
   Container,
   CardPet,
@@ -42,40 +44,14 @@ import {
   TinyText,
 } from './styles';
 
-interface PetImages{
-  id:string;
-  pet_id:string;
-  image:string;
-  image_url:string | null;
-}
 
 interface FavsData{
   id:string;
   user_id:string;
   pet_id:string;
-  pet:PetsData;
+  pet:IPetsData;
 }
 
-interface PetsData{
-  id:string;
-  name: string;
-  user_id: string;
-  species:string;
-  is_adopt: boolean;
-  age:string;
-  gender:string;
-  description:string;
-  location_lat:string;
-  location_lon:string;
-  city:string;
-  state:string;
-  created_at: Date;
-  updated_at: Date;
-  user_name: string;
-  user_phone: string;
-  user_avatar: string;
-  images: PetImages[];
-}
 
 const FavPets: React.FC = () => {
   const {favPets,loadFavs} = usePets();
@@ -111,8 +87,8 @@ const FavPets: React.FC = () => {
                     <FlatList
                     data={item.pet.images}
                     style={{flex:1}}
-                    keyExtractor={(item: PetImages) => item.id}
-                    renderItem={({item}: {item:PetImages}) =>  (
+                    keyExtractor={(item: IPetImages) => item.id as string}
+                    renderItem={({item}: {item:IPetImages}) =>  (
                       item.image_url ?
                       <ImagePet source={{uri: item.image_url}} style={{width:windowWidth}}/>
                       :
