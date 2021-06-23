@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import {
   Container,
@@ -6,6 +6,8 @@ import {
   CardItem,
   PetImage,
   GenderContainer,
+  EmptyContainer,
+  EmptyText,
 } from './styles';
 
 import TabMenu from '../../components/TabMenu';
@@ -16,7 +18,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 import PetImg from '../../assets/pet.png';
 import api from '../../services/api';
-import { Dimensions, FlatList } from 'react-native';
+import { Dimensions, FlatList, ActivityIndicator } from 'react-native';
 
 import { useLocation } from '../../hooks/LocationContext';
 import { useFilter } from '../../hooks/FilterContext';
@@ -29,16 +31,17 @@ const Home: React.FC = () => {
   const { loadFavs } = usePets();
   const { user } = useAuth();
   const { currentLocation } = useLocation();
-  const {distance, specieFilter, genderFilter} = useFilter();
+  const {distance, specieFilter, genderFilter, page, handleSetPage} = useFilter();
 
-  const [pets, setPets] = useState<IPetsData[]>();
+  const [pets, setPets] = useState<IPetsData[]>([]);
   const [windowWidth, setWindowWidth] = useState<number>();
   const [refreshing, setRefreshing] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   let petsArr: IPetsData[] = [];
 
   async function loadPets(){
-    setRefreshing(true);
     if(currentLocation.lat && currentLocation.lon){
       const response = await api.get('/pets', {
         params: {
@@ -47,14 +50,21 @@ const Home: React.FC = () => {
           distance: distance,
           species: specieFilter,
           gender: genderFilter,
+          limit: 5,
+          skip: page,
         },
       });
       petsArr = response.data;
       petsArr = await setPetImages(petsArr);
 
-      setPets(petsArr);
+      if(page > 1){
+        setPets([...pets, ...petsArr]);
+      }else{
+        setPets([]);
+        setPets(petsArr);
+      }
     }
-    setRefreshing(false);
+    setLoadingMore(false);
   }
 
   const setPetImages = useCallback(async(petsArr: IPetsData[]): Promise<IPetsData[]> => {
@@ -78,16 +88,27 @@ const Home: React.FC = () => {
   }, []);
 
   const handleRefreshList = useCallback(() => {
+    setPets([]);
     setRefreshing(true);
-    loadPets().then(() => setRefreshing(false));
-  }, [loadPets]);
+    handleSetPage(1);
+    loadPets().finally(() => setRefreshing(false));
+  }, [loadPets, handleSetPage]);
+
+  function handleFetchMore(distance: number){
+    if (distance < 1) return;
+
+    setLoadingMore(true);
+    handleSetPage(page + 1);
+    loadPets();
+}
 
   useEffect(()=>{
-    loadPets();
+    setLoading(true);
+    setPets([]);
+    loadPets().finally(() => setLoading(false));
     if(user){
       loadFavs();
     }
-
     setWindowWidth((Dimensions.get('window').width)-34);
   },[currentLocation.lat, specieFilter, genderFilter, distance]);
 
@@ -95,49 +116,67 @@ const Home: React.FC = () => {
     <>
     <Container>
     <FilterMenu/>
-      <ResultList<React.ElementType>
-        refreshing={refreshing}
-        onRefresh={handleRefreshList}
-        data={pets}
-        showsVerticalScrollIndicator={false}
-        keyExtractor={(item: IPetsData) => item.id}
-        renderItem={({item} : {item:IPetsData}) => (
-          <CardItem>
-            {item.images.length > 0 ?
-              <FlatList
-                data={item.images}
-                style={{flex:1}}
-                keyExtractor={(item: IPetImages) => item.id as string}
-                renderItem={({item}: {item:IPetImages}) => (
-                  item.image_url ?
-                  <PetImage source={{uri: item.image_url}} style={{width:windowWidth}}/>
-                  :
-                  <></>
-                )}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{borderRadius:20, overflow:'hidden'}}
-              />
-            :
-            <PetImage source={PetImg}/>
-            }
-            <GenderContainer>
-              {item.gender === 'male' ?
-                (
-                  <Icon name="male" size={20} color='#129CBA'/>
-                ):
-                (
-                  <Icon name="female" size={20} color='#ED9090'/>
-                )
+      {!loading ?
+        <FlatList
+          refreshing={refreshing}
+          onRefresh={handleRefreshList}
+          data={pets}
+          showsVerticalScrollIndicator={false}
+          keyExtractor={(item: IPetsData) => item.id}
+          onEndReachedThreshold={0.1}
+          onEndReached={({distanceFromEnd}) =>
+            handleFetchMore(distanceFromEnd)
+          }
+          ListFooterComponent={
+            loadingMore ? <ActivityIndicator color="#ba1212"/> : <></>
+          }
+          renderItem={({item} : {item:IPetsData}) => (
+            <CardItem>
+              {item.images.length > 0 ?
+                <FlatList
+                  data={item.images}
+                  style={{flex:1}}
+                  keyExtractor={(item: IPetImages) => item.id as string}
+                  renderItem={({item}: {item:IPetImages}) => (
+                    item.image_url ?
+                    <PetImage source={{uri: item.image_url}} style={{width:windowWidth}}/>
+                    :
+                    <></>
+                  )}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{borderRadius:20, overflow:'hidden'}}
+                />
+              :
+              <PetImage source={PetImg}/>
               }
-            </GenderContainer>
+              <GenderContainer>
+                {item.gender === 'male' ?
+                  (
+                    <Icon name="male" size={20} color='#129CBA'/>
+                  ):
+                  (
+                    <Icon name="female" size={20} color='#ED9090'/>
+                  )
+                }
+              </GenderContainer>
 
-            <CardContent item={item}/>
-          </CardItem>
-        )}
-      >
-
-      </ResultList>
+              <CardContent item={item}/>
+            </CardItem>
+          )}
+          ListEmptyComponent={() => {
+            return (
+              <EmptyContainer>
+                <EmptyText>
+                  Nenhum resultado encontrado.
+                </EmptyText>
+              </EmptyContainer>
+            )
+          }}
+        />
+      :
+      <ActivityIndicator color="#ba1212"/>
+      }
     </Container>
     <TabMenu/>
     </>

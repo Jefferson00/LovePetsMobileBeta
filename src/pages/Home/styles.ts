@@ -38,3 +38,13 @@ export const GenderContainer = styled.View`
   justify-content: center;
   align-items: center;
 `
+export const EmptyContainer = styled.View`
+  flex:1;
+  justify-content: center;
+  align-items: center;
+`
+export const EmptyText = styled.Text`
+  font-size: 18px;
+  font-family: 'Roboto-Regular';
+  color:  #383838;
+`

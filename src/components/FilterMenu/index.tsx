@@ -69,7 +69,10 @@ const FilterMenu: React.FC = () =>{
       height: heightRef,
       width: widthRef,
     }}>
-      <FilterMenuButton onPress={handleShow}>
+      <FilterMenuButton
+        onPress={handleShow}
+        hitSlop={{top: 10, left: 10, right: 10, bottom: 10}}
+      >
         <Icon name="menu" size={20} color="#FFF"/>
       </FilterMenuButton>
 

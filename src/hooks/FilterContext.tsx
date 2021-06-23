@@ -5,9 +5,11 @@ interface FilterContextData{
   specieFilter: SpecieProps;
   genderFilter: GenderProps;
   distance: number;
+  page: number;
   handleSetSpecieFilter: (specie: SpecieProps) => void;
   handleSetGenderFilter: (gender: GenderProps) => void;
   handleSetDistanceFilter: (distance: number) => void;
+  handleSetPage: (page: number) => void;
 }
 
 type SpecieProps =  'dog' | 'cat' | 'rodent' | 'rabbit' | 'fish' | 'others' | null ;
@@ -19,17 +21,25 @@ export const FilterProvider : React.FC = ({children}) => {
   const [specieFilter, setSpecieFilter] = useState<SpecieProps>(null);
   const [genderFilter, setGenderFilter] = useState<GenderProps>(null);
   const [distance, setDistance] = useState(50);
+  const [page, setPage] = useState(1);
 
   const handleSetSpecieFilter = useCallback((specie: SpecieProps)=> {
+      setPage(1);
       setSpecieFilter(specie);
   }, []);
 
   const handleSetGenderFilter = useCallback((gender: GenderProps)=> {
+    setPage(1);
     setGenderFilter(gender);
   }, []);
 
   const handleSetDistanceFilter = useCallback((distance: number)=> {
+    setPage(1);
     setDistance(distance);
+  }, []);
+
+  const handleSetPage = useCallback((page: number)=> {
+    setPage(page);
   }, []);
 
   useEffect(() => {
@@ -41,9 +51,11 @@ export const FilterProvider : React.FC = ({children}) => {
       specieFilter,
       genderFilter,
       distance,
+      page,
       handleSetSpecieFilter,
       handleSetGenderFilter,
       handleSetDistanceFilter,
+      handleSetPage,
     }}>
       {children}
     </FilterContext.Provider>
