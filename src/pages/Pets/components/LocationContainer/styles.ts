@@ -27,3 +27,16 @@ export const Map = styled(MapView)`
   width: 100%;
   margin-top: 20px;
 `
+export const CalloutContainer = styled.View`
+  width: 160px;
+  height: 46px;
+  padding: 0 16px;
+  background: #FFF;
+  border-radius: 16px;
+  justify-content: center;
+`
+
+export const CalloutText = styled.Text`
+  font-family: 'Roboto-Regular';
+  font-size: 14px;
+`

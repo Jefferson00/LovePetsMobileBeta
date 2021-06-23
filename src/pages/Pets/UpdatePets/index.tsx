@@ -115,6 +115,11 @@ const UpdatePet: React.FC= () => {
     setImages(newImages);
   },[route.params.pet.images]);
 
+  const selectLocation = useCallback((lat:string, lon:string) => {
+    setLatitude(lat);
+    setLongitude(lon);
+  },[]);
+
 
   const handleSelectImage = useCallback((index: number) => {
     launchImageLibrary({
@@ -340,6 +345,7 @@ const UpdatePet: React.FC= () => {
               <LocationContainer
                 latitude={Number(latitude)}
                 longitude={Number(longitude)}
+                onSelectLocation={selectLocation}
               />
 
               <Button

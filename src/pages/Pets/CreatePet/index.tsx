@@ -112,8 +112,8 @@ const CreatePet: React.FC = () => {
 
   useEffect(() => {
     if (currentLocation.lat && currentLocation.lon) {
-      setLatitude(Number(currentLocation.lat));
-      setLongitude(Number(currentLocation.lon));
+      setLatitude(currentLocation.lat);
+      setLongitude(currentLocation.lon);
     }
   }, [currentLocation.lat]);
 
@@ -170,8 +170,8 @@ const CreatePet: React.FC = () => {
           gender: gender,
           species: specie,
           is_adopt: false,
-          location_lat: '-15.817489',
-          location_lon: '-48.123465',
+          location_lat: String(latitude),
+          location_lon: String(longitude),
           city: 'Ceilândia',
           state: 'DF'
         }
@@ -241,11 +241,16 @@ const CreatePet: React.FC = () => {
       setModalType('error');
       setModalVisible(true);
     }
-  }, [age, gender, specie]);
+  }, [age, gender, specie, latitude, longitude]);
 
   const handleConfirm = useCallback(async() => {
     setModalVisible(false);
   }, []);
+
+  const selectLocation = useCallback((lat:string, lon:string) => {
+    setLatitude(Number(lat));
+    setLongitude(Number(lon));
+  },[]);
 
   return (
     <>
@@ -335,6 +340,7 @@ const CreatePet: React.FC = () => {
               <LocationContainer
                 latitude={latitude}
                 longitude={longitude}
+                onSelectLocation={selectLocation}
               />
 
               <Button
