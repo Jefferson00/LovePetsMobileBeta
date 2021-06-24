@@ -56,16 +56,9 @@ const MyPets: React.FC = () => {
   }, [handleUnselectMyPet]);
 
   useEffect(() => {
-
-    async function load(){
-      await loadMyPets();
-    }
     setLoading(true);
 
-    load();
-
-    setLoading(false);
-    console.log('v')
+    loadMyPets().finally(() => setLoading(false));
   },[myPets]);
 
   if(loading){
@@ -125,6 +118,7 @@ const MyPets: React.FC = () => {
                   onPress={() => navigation.navigate('UpdatePets', {
                     pet: item
                   })}
+                  hitSlop={{top:6, left: 6, right: 6, bottom:6}}
                 >
                   <FeatherIcon name="edit-2" size={20} color='#12BaBA' style={{marginRight:6}}/>
                   <EditText>
@@ -133,7 +127,10 @@ const MyPets: React.FC = () => {
                 </EditButton>
 
                 <DeleteContainer>
-                  <DeleteButton onPress={() => handleDeleteOpenModal(item)}>
+                  <DeleteButton
+                    onPress={() => handleDeleteOpenModal(item)}
+                    hitSlop={{top:10, left: 10, right: 10, bottom:10}}
+                  >
                     <Icon name="trash" size={20} color='#BA1212'/>
                   </DeleteButton>
                 </DeleteContainer>

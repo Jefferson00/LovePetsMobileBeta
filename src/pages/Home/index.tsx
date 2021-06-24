@@ -41,7 +41,9 @@ const Home: React.FC = () => {
 
   let petsArr: IPetsData[] = [];
 
+
   async function loadPets(){
+    console.log(page); //-------------------------------------------------------------------------------------------------
     if(currentLocation.lat && currentLocation.lon){
       const response = await api.get('/pets', {
         params: {
@@ -60,11 +62,9 @@ const Home: React.FC = () => {
       if(page > 1){
         setPets([...pets, ...petsArr]);
       }else{
-        setPets([]);
         setPets(petsArr);
       }
     }
-    setLoadingMore(false);
   }
 
   const setPetImages = useCallback(async(petsArr: IPetsData[]): Promise<IPetsData[]> => {
@@ -94,23 +94,28 @@ const Home: React.FC = () => {
     loadPets().finally(() => setRefreshing(false));
   }, [loadPets, handleSetPage]);
 
-  function handleFetchMore(distance: number){
+  const handleFetchMore = useCallback((distance: number) => {
     if (distance < 1) return;
 
     setLoadingMore(true);
+    console.log('handleFetchMore')//-------------------------------------------------------------------------------
     handleSetPage(page + 1);
-    loadPets();
-}
+    loadPets().finally(() => setLoadingMore(false));
+  }, [page, loadPets]);
 
   useEffect(()=>{
     setLoading(true);
     setPets([]);
+    handleSetPage(1);
     loadPets().finally(() => setLoading(false));
     if(user){
       loadFavs();
     }
+  },[currentLocation.lat, specieFilter, genderFilter, distance, refreshing]);
+
+  useEffect(() => {
     setWindowWidth((Dimensions.get('window').width)-34);
-  },[currentLocation.lat, specieFilter, genderFilter, distance]);
+  },[]);
 
   return (
     <>
@@ -125,11 +130,12 @@ const Home: React.FC = () => {
           keyExtractor={(item: IPetsData) => item.id}
           onEndReachedThreshold={0.1}
           onEndReached={({distanceFromEnd}) =>
-            handleFetchMore(distanceFromEnd)
+            pets.length >= 4 && handleFetchMore(distanceFromEnd)
           }
           ListFooterComponent={
             loadingMore ? <ActivityIndicator color="#ba1212"/> : <></>
           }
+          maxToRenderPerBatch={10}
           renderItem={({item} : {item:IPetsData}) => (
             <CardItem>
               {item.images.length > 0 ?

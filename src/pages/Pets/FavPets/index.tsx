@@ -1,13 +1,7 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, { useEffect, useState  } from 'react';
 import { FlatList, Dimensions, TouchableOpacity } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
-import FeatherIcon from 'react-native-vector-icons/Feather';
-import { getDistance, convertDistance } from 'geolib';
-import { formatDistance } from 'date-fns';
-import { pt } from 'date-fns/locale';
-
-import api from '../../../services/api';
 
 import { usePets } from '../../../hooks/PetsContext';
 import { useLocation } from '../../../hooks/LocationContext';
@@ -18,6 +12,8 @@ import getDistanceLocation  from '../../../utils/getDistanceLocation';
 import getDistanceTime from '../../../utils/getDistanceTime';
 import handleContactWhatsapp from '../../../utils/handleContactWhatsapp';
 import handleShare from '../../../utils/handleShare';
+
+import DefaultImg from '../../../assets/default.png';
 
 import { IPetsData, IPetImages } from '../../../@types/Pets/IPetsData';
 
@@ -54,7 +50,7 @@ interface FavsData{
 
 
 const FavPets: React.FC = () => {
-  const {favPets,loadFavs} = usePets();
+  const { favPets, loadFavs, handleDeleteFavPet } = usePets();
   const { currentLocation } = useLocation();
   const [windowWidth, setWindowWidth] = useState<number>();
 
@@ -131,7 +127,11 @@ const FavPets: React.FC = () => {
 
                   <ContactContainer>
                     <UserInformation>
-                      <UserAvatar source={{uri:item.pet.user_avatar}}/>
+                      {item.pet.user_avatar ?
+                        <UserAvatar source={{uri: item.pet.user_avatar}} />
+                        :
+                        <UserAvatar source={DefaultImg} />
+                      }
                       <Description style={{marginHorizontal:8}}>
                         {item.pet.user_name}
                       </Description>
@@ -161,8 +161,8 @@ const FavPets: React.FC = () => {
                 <LocationContainer>
                     <TinyText>
                       {getDistanceLocation({
-                        fromLat: currentLocation.lat,
-                        fromLon: currentLocation.lon,
+                        fromLat: String(currentLocation.lat),
+                        fromLon: String(currentLocation.lon),
                         toLat: item.pet.location_lat,
                         toLon: item.pet.location_lon,
                       })+' km'}
@@ -173,7 +173,7 @@ const FavPets: React.FC = () => {
                   </LocationContainer>
 
                 <DeleteContainer>
-                  <FavButton>
+                  <FavButton onPress={() => handleDeleteFavPet(item.id)}>
                     <Icon name="heart" size={30} color='#BA1212'/>
                   </FavButton>
                 </DeleteContainer>

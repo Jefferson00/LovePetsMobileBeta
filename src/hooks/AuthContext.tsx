@@ -7,6 +7,7 @@ import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import GoogleSignin from '../libs/GoogleSignin';
 
 import { Settings, LoginManager, AccessToken } from 'react-native-fbsdk-next';
+import { usePets } from './PetsContext';
 
 Settings.initializeSDK();
 
@@ -61,6 +62,8 @@ interface AuthContextData{
 export const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 export const AuthProvider : React.FC = ({children}) => {
+    const { resetPetsStates } = usePets();
+
     const [authData, setAuthData] = useState<AuthState>({} as AuthState);
     const [loading, setLoading] = useState(true);
     const [socialAuthenticationError, setSocialAuthenticationError] = useState(false);
@@ -122,6 +125,7 @@ export const AuthProvider : React.FC = ({children}) => {
         ]);
 
         setAuthData({} as AuthState);
+        resetPetsStates();
         setLoading(false);
     }, []);
 

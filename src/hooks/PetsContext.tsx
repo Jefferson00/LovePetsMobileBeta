@@ -20,7 +20,9 @@ interface PetsContextData{
   loadMyPets:() => Promise<void>;
   handleSelectMyPet:(pet: IPetsData) =>void;
   handleUnselectMyPet:() =>void;
+  resetPetsStates:() =>void;
   handleDeleteMyPet:() => Promise<void>;
+  handleDeleteFavPet:(id:string) => Promise<void>;
 }
 
 export const PetsContext = createContext<PetsContextData>({} as PetsContextData);
@@ -32,8 +34,6 @@ export const PetsProvider : React.FC = ({children}) => {
   const [favPets, setFavPets] = useState<FavsData[]>([]);
   const [fav, setFav] = useState<FavsData>({} as FavsData);
 
-  const { user } = useAuth();
-
   let pets: IPetsData[] = [];
   const loadMyPets = useCallback( async() => {
     const response = await api.get('/pets/me');
@@ -41,12 +41,15 @@ export const PetsProvider : React.FC = ({children}) => {
     pets = response.data;
     pets = await setMyPetImages(pets);
 
-    console.log(myPets);
-
     if(JSON.stringify(pets) !== JSON.stringify(myPets)){
       setMyPets(pets);
     }
-  }, [myPets]);
+  }, [myPets, pets]);
+
+  const resetPetsStates = () =>{
+    setMyPets([]);
+    setFavPets([]);
+  }
 
   const setMyPetImages = useCallback(async(petsArr: IPetsData[]): Promise<IPetsData[]> => {
     const mapPromises = petsArr.map(async (pet) => {
@@ -106,22 +109,20 @@ export const PetsProvider : React.FC = ({children}) => {
         return images;
   }, []);
 
-  const handleDeletePet = useCallback(async() => {
+  const handleDeleteFavPet = useCallback(async(id:string) => {
     try {
-      await api.delete(`favs/${fav?.id}`);
+      await api.delete(`favs/${id}`);
 
-      setFavPets(favPets.filter(favs => favs.id !== fav.id));
+      setFavPets(favPets.filter(favs => favs.id !== id));
 
     } catch (error) {
     }
-  }, [fav]);
+  }, [favPets]);
 
   useEffect(() => {
-    if(user){
-      loadMyPets();
-      loadFavs();
-    }
-  },[user]);
+      //loadMyPets();
+     // loadFavs();
+  },[]);
 
   return(
     <PetsContext.Provider value={{
@@ -132,6 +133,8 @@ export const PetsProvider : React.FC = ({children}) => {
       handleDeleteMyPet,
       handleSelectMyPet,
       handleUnselectMyPet,
+      resetPetsStates,
+      handleDeleteFavPet,
     }}>
       {children}
     </PetsContext.Provider>

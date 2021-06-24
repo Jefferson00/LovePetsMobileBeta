@@ -1,5 +1,5 @@
 import React, { useRef , useCallback, useState }from 'react';
-import { Animated, TouchableOpacity } from 'react-native';
+import { Animated, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import {
@@ -35,33 +35,55 @@ import handleShare from '../../../../utils/handleShare';
 import { IPetsData } from '../../../../@types/Pets/IPetsData';
 
 import DefaultImg from '../../../../assets/default.png';
+import { useNavigation } from '@react-navigation/native';
 
 interface CardContentProps{
   item: IPetsData;
 }
 
 const CardContent: React.FC<CardContentProps> = ({item}) => {
+  const navigation = useNavigation();
   const { favPets, loadFavs } = usePets();
   const { user } = useAuth();
   const { currentLocation } = useLocation();
+  const [loadingFavClicked, setLoadingFavClicked] = useState(false);
 
   const cardContentAnimation = useRef(new Animated.Value(53)).current;
 
   const [showCardContent, setShowCardContent] = useState(false);
 
   const handleCreateFav = useCallback(async (pets_id:string) => {
-    try {
-      await api.post('/favs', {pets_id});
-    } catch (error) {
-      if(favPets){
-        const favToDelete = favPets.find(fav => (fav.pet_id === pets_id && fav.user_id === user.id));
+    if(user){
+      setLoadingFavClicked(true);
+      try {
+        await api.post('/favs', {pets_id});
+      } catch (error) {
+        if(favPets){
+          const favToDelete = favPets.find(fav => (fav.pet_id === pets_id && fav.user_id === user.id));
 
-        if(favToDelete){
-          await api.delete(`/favs/${favToDelete.id}`);
+          if(favToDelete){
+            await api.delete(`/favs/${favToDelete.id}`);
+          }
         }
       }
+      setLoadingFavClicked(false);
+      loadFavs();
+    }else{
+      Alert.alert(
+        'Entre ou crie uma conta',
+        'para aproveitar todas as funcionalidades, entre ou crie uma contra',
+         [
+           {
+             text: 'Agora não',
+             style: 'cancel'
+           },
+           {
+             text: 'Entrar',
+             onPress: () => {navigation.navigate('SignIn')}
+           }
+         ]
+      )
     }
-    loadFavs();
   },[favPets]);
 
   const handleShow = useCallback(() => {
@@ -88,7 +110,11 @@ const CardContent: React.FC<CardContentProps> = ({item}) => {
       <>
         <HeaderContent>
           <FavButton onPress={() => handleCreateFav(item.id)}>
-            {user && favPets.find(fav => (fav.pet_id === item.id && fav.user_id === user.id)) ?
+            {
+              loadingFavClicked ?
+              <ActivityIndicator size="small" color="#ba1212"/>
+              :
+              user && favPets.find(fav => (fav.pet_id === item.id && fav.user_id === user.id)) ?
               <Icon name="heart" size={25} color="#F43434" />
               :
               <Icon name="heart-outline" size={25} color="#F43434" />
@@ -105,8 +131,8 @@ const CardContent: React.FC<CardContentProps> = ({item}) => {
           <LocationContainer>
             <Subtitle>
               {getDistanceLocation({
-                fromLat: currentLocation.lat,
-                fromLon: currentLocation.lon,
+                fromLat: String(currentLocation.lat),
+                fromLon: String(currentLocation.lon),
                 toLat: item.location_lat,
                 toLon: item.location_lon,
               }) + ' km'}
