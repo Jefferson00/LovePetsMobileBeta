@@ -10,13 +10,12 @@ import {
   ButtonWrapper,
 } from './styles';
 
-import { Alert } from 'react-native';
+import { Alert, ActivityIndicator } from 'react-native';
 import api from '../../../services/api';
 import * as Yup from 'yup';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation, useRoute, RouteProp} from '@react-navigation/native';
-import { useLocation } from '../../../hooks/LocationContext';
 import { FormHandles } from '@unform/core';
 import { Form } from '@unform/mobile';
 
@@ -33,6 +32,8 @@ import AgeContainer from '../components/AgeContainer';
 import LocationContainer from '../components/LocationContainer';
 
 import { IPetsData , IPetImages, Age, Gender, Specie} from '../../../@types/Pets/IPetsData';
+import ModalComponent from '../../../components/Modal';
+import { usePets } from '../../../hooks/PetsContext';
 
 interface CreatePetFormData {
   name: string;
@@ -61,6 +62,7 @@ type ParamRoute = {
 const UpdatePet: React.FC= () => {
   const formRef = useRef<FormHandles>(null);
   const navigation = useNavigation();
+  const { loadMyPets } = usePets();
   const route = useRoute<RouteProp<ParamRoute, 'UpdatePet'>>();
 
 
@@ -98,6 +100,12 @@ const UpdatePet: React.FC= () => {
   const [longitude, setLongitude] = useState(route.params.pet.location_lon);
   const [images, setImages] = useState<IPetImages[]>(defaultImagesValues);
 
+  const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalType, setModalType] = useState<'success' | 'error' | 'info' | 'confirmation'>('error');
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalSubtitle, setModalSubtitle] = useState('');
+
   useEffect(() => {
     const imagesParm = route.params.pet.images;
 
@@ -110,8 +118,6 @@ const UpdatePet: React.FC= () => {
       }
     });
 
-
-
     setImages(newImages);
   },[route.params.pet.images]);
 
@@ -120,6 +126,9 @@ const UpdatePet: React.FC= () => {
     setLongitude(lon);
   },[]);
 
+  const handleConfirm = useCallback(async() => {
+    setModalVisible(false);
+  }, []);
 
   const handleSelectImage = useCallback((index: number) => {
     launchImageLibrary({
@@ -169,6 +178,7 @@ const UpdatePet: React.FC= () => {
       });
 
       if (hasImage) {
+        setLoading(true);
         const petData: PetData = {
           name: data.name,
           description: data.description,
@@ -182,55 +192,14 @@ const UpdatePet: React.FC= () => {
           state: 'DF'
         }
 
-        try {
-          await api.put(`/pets/${route.params.pet.id}`, petData);
+        await handleCreateImages(petData);
 
-          images.map(image => {
-            if (image.image_url) {
-              const dataImage = new FormData();
-
-              dataImage.append('image', {
-                type: 'image/jpeg',
-                name: `${route.params.pet.id + image.id}.jpg`,
-                uri: image.image_url,
-              });
-              dataImage.append('pet_id', route.params.pet.id);
-
-              if (image.id){
-                api.patch(`images/${image.id}`, dataImage).catch(() => {
-                  Alert.alert(
-                    'Erro ao atualizar a imagem',
-                    'Não foi possível atualizar a imagem, tente novamente.',
-                  );
-                });
-              }else{
-                api.patch('images', dataImage).catch(() => {
-                  Alert.alert(
-                    'Erro no upload da imagem',
-                    'Não foi possível cadastrar a imagem, tente novamente.',
-                  );
-                });
-              }
-            }
-          });
-
-          Alert.alert(
-            'Atualizado!',
-            'Atualização realizada com sucesso.',
-          );
-
-          navigation.goBack();
-        } catch (error) {
-          Alert.alert(
-            'Erro na atualização',
-            'Não foi possível atualizar o pet, tente novamente.',
-          );
-        };
+        setLoading(false);
       } else {
-        Alert.alert(
-          'Nenhuma imagem selecionada',
-          'Selecione pelo menos uma imagem do pet',
-        );
+        setModalTitle('Nenhuma imagem selecionada');
+        setModalSubtitle('Selecione pelo menos uma imagem do pet');
+        setModalType('error');
+        setModalVisible(true);
       }
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
@@ -238,20 +207,71 @@ const UpdatePet: React.FC= () => {
 
         formRef.current?.setErrors(errors);
 
-        Alert.alert(
-          'Erro na atualização',
-          'Preencha todos os campos corretamente.',
-        );
+        setModalTitle('Erro na atualização');
+        setModalSubtitle('Preencha todos os campos corretamente.');
+        setModalType('error');
+        setModalVisible(true);
 
         return;
       }
 
-      Alert.alert(
-        'Erro na atualização',
-        'Ocorreu um erro no atualização, tente novamente.',
-      );
+      setModalTitle('Erro na atualização');
+      setModalSubtitle('Preencha todos os campos corretamente.');
+      setModalType('error');
+      setModalVisible(true);
     }
-  }, [age, gender, specie]);
+  }, [age, gender, specie, latitude, longitude]);
+
+  const handleCreateImages = async (petData: PetData) => {
+    try {
+      await api.put(`/pets/${route.params.pet.id}`, petData);
+
+      images.map(image => {
+        if (image.image_url) {
+          const dataImage = new FormData();
+
+          dataImage.append('image', {
+            type: 'image/jpeg',
+            name: `${route.params.pet.id + image.id}.jpg`,
+            uri: image.image_url,
+          });
+          dataImage.append('pet_id', route.params.pet.id);
+
+          if (image.id){
+            api.patch(`images/${image.id}`, dataImage).catch(() => {
+              setModalTitle('Erro no upload da imagem');
+              setModalSubtitle('Não foi possível atualizar a imagem, tente novamente.');
+              setModalType('error');
+              setModalVisible(true);
+            });
+          }else{
+            api.patch('images', dataImage).catch(() => {
+              setModalTitle('Erro no upload da imagem');
+              setModalSubtitle('Não foi possível cadastrar a imagem, tente novamente.');
+              setModalType('error');
+              setModalVisible(true);
+            });
+          }
+        }
+      });
+
+      setModalTitle('Atualizado!');
+      setModalSubtitle('Atualizado com sucesso.');
+      setModalType('success');
+      setModalVisible(true);
+
+      loadMyPets();
+
+      setTimeout(() => {
+        navigation.goBack();
+      },1000);
+    } catch (error) {
+      setModalTitle('Erro na atualização');
+      setModalSubtitle('Não foi possível atualizar o pet, tente novamente.');
+      setModalType('error');
+      setModalVisible(true);
+    };
+  }
 
   return (
     <>
@@ -269,6 +289,7 @@ const UpdatePet: React.FC= () => {
           >
             <FormHeader>
               <ImageContainer
+                isUpdated={true}
                 images={images}
                 handleSelectImage={handleSelectImage}
               />
@@ -360,6 +381,35 @@ const UpdatePet: React.FC= () => {
 
           </Form>
         </FormContainer>
+
+        <ModalComponent
+            title={modalTitle}
+            subtitle={modalSubtitle}
+            type={modalType}
+            icon={() => {
+              if(modalType === 'error' ){
+                return (<Icon name="alert-circle" size={45} color='#BA1212'/>)
+              }else if(modalType === 'success' ){
+                return (<Icon name="checkmark-circle" size={45} color='#12BABA'/>)
+              }else{
+                return (<Icon name="alert-circle" size={45} color='#BA1212'/>)
+              }
+            }}
+            transparent
+            visible={modalVisible}
+            handleConfirm={handleConfirm}
+            animationType="slide"
+         />
+
+          <ModalComponent
+            type={'loading'}
+            icon={() => (
+              <ActivityIndicator  size="large" color='#BA1212'/>
+            )}
+            transparent
+            visible={loading}
+            animationType="slide"
+         />
 
       </Container>
       <TabMenu />

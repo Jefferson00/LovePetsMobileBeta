@@ -10,7 +10,7 @@ import {
   ButtonWrapper,
 } from './styles';
 
-import { Alert } from 'react-native';
+import { Alert, ActivityIndicator } from 'react-native';
 import api from '../../../services/api';
 import * as Yup from 'yup';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
@@ -32,6 +32,7 @@ import SpecieContainer from '../components/SpecieContainer';
 import AgeContainer from '../components/AgeContainer';
 import LocationContainer from '../components/LocationContainer';
 import ModalComponent from '../../../components/Modal';
+import Geocoder from '../../../libs/Geocoder';
 
 
 interface PetImages{
@@ -105,6 +106,7 @@ const CreatePet: React.FC = () => {
   const [latitude, setLatitude] = useState(-15.780107);
   const [longitude, setLongitude] = useState(-48.140725);
   const [images, setImages] = useState<PetImages[]>(defaultImagesValues);
+  const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalType, setModalType] = useState<'success' | 'error' | 'info' | 'confirmation'>('error');
   const [modalTitle, setModalTitle] = useState('');
@@ -114,6 +116,12 @@ const CreatePet: React.FC = () => {
     if (currentLocation.lat && currentLocation.lon) {
       setLatitude(currentLocation.lat);
       setLongitude(currentLocation.lon);
+
+      /*Geocoder.from(currentLocation.lat, currentLocation.lon)
+        .then(result => {
+          let address = result.results[0].address_components[0];
+          console.log(address);
+        })*/
     }
   }, [currentLocation.lat]);
 
@@ -163,6 +171,7 @@ const CreatePet: React.FC = () => {
       });
 
       if (hasImage) {
+        setLoading(true);
         const petData: PetData = {
           name: data.name,
           description: data.description,
@@ -176,46 +185,9 @@ const CreatePet: React.FC = () => {
           state: 'DF'
         }
 
-        try {
-          const petCreated: PetCreated = await (await api.post('/pets', petData)).data;
+        await handleCreateImages(petData);
 
-          images.map(image => {
-            if (image.image_url) {
-              const dataImage = new FormData();
-
-              dataImage.append('image', {
-                type: 'image/jpeg',
-                name: `${petCreated.id + image.id}.jpg`,
-                uri: image.image_url,
-              });
-              dataImage.append('pet_id', petCreated.id);
-
-              console.log(dataImage)
-
-              api.patch('images', dataImage).catch(() => {
-                setModalTitle('Erro no upload da imagem');
-                setModalSubtitle('Não foi possível cadastrar a imagem, tente novamente.');
-                setModalType('error');
-                setModalVisible(true);
-              });
-            }
-          });
-
-          setModalTitle('Cadastro realizado!');
-          setModalSubtitle('Cadastro realizado com sucesso.');
-          setModalType('success');
-          setModalVisible(true);
-
-          setTimeout(() => {
-            navigation.goBack();
-          },1000);
-
-        } catch (error) {
-          setModalTitle('Erro no cadastro');
-          setModalSubtitle('Não foi possível cadastrar o pet, tente novamente.');
-          setModalType('error');
-          setModalVisible(true);
-        };
+        setLoading(false);
       } else {
         setModalTitle('Nenhuma imagem selecionada');
         setModalSubtitle('Selecione pelo menos uma imagem do pet');
@@ -242,6 +214,47 @@ const CreatePet: React.FC = () => {
       setModalVisible(true);
     }
   }, [age, gender, specie, latitude, longitude]);
+
+  const handleCreateImages = async (petData: PetData) => {
+    try {
+      const petCreated: PetCreated = await (await api.post('/pets', petData)).data;
+
+      images.map(image => {
+        if (image.image_url) {
+          const dataImage = new FormData();
+
+          dataImage.append('image', {
+            type: 'image/jpeg',
+            name: `${petCreated.id + image.id}.jpg`,
+            uri: image.image_url,
+          });
+          dataImage.append('pet_id', petCreated.id);
+
+          api.patch('images', dataImage).catch(() => {
+            setModalTitle('Erro no upload da imagem');
+            setModalSubtitle('Não foi possível cadastrar a imagem, tente novamente.');
+            setModalType('error');
+            setModalVisible(true);
+          });
+        }
+      });
+
+      setModalTitle('Cadastro realizado!');
+      setModalSubtitle('Cadastro realizado com sucesso.');
+      setModalType('success');
+      setModalVisible(true);
+
+      setTimeout(() => {
+        navigation.goBack();
+      },1000);
+
+    } catch (error) {
+      setModalTitle('Erro no cadastro');
+      setModalSubtitle('Não foi possível cadastrar o pet, tente novamente.');
+      setModalType('error');
+      setModalVisible(true);
+    };
+  }
 
   const handleConfirm = useCallback(async() => {
     setModalVisible(false);
@@ -371,6 +384,16 @@ const CreatePet: React.FC = () => {
             transparent
             visible={modalVisible}
             handleConfirm={handleConfirm}
+            animationType="slide"
+         />
+
+          <ModalComponent
+            type={'loading'}
+            icon={() => (
+              <ActivityIndicator  size="large" color='#BA1212'/>
+            )}
+            transparent
+            visible={loading}
             animationType="slide"
          />
 

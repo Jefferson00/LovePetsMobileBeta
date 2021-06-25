@@ -9,6 +9,16 @@ export const Container = styled.View`
   margin-left: 26px;
 `;
 
+export const ImageDeleteContainer = styled.View`
+  position: relative;
+`
+
+export const ImageDeleteButton = styled.TouchableOpacity`
+  position: absolute;
+  top: -11px;
+  right: -14px;
+`
+
 export const UploadImageButton = styled.TouchableOpacity<UploadButtonProps>`
   width: 120px;
   height: 120px;

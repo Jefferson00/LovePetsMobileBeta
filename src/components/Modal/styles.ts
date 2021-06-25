@@ -3,7 +3,7 @@ import styled, {css} from 'styled-components/native';
 import {TextInput} from 'react-native';
 
 interface TitleProps{
-  type: 'success' | 'error' | 'info' | 'confirmation';
+  type: 'success' | 'error' | 'info' | 'confirmation' | 'loading';
 }
 
 interface ButtonsProps{

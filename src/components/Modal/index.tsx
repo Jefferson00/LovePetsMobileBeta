@@ -15,11 +15,11 @@ import {
 } from './styles';
 
 interface ModalProps extends ModalBaseProps {
-  title: string;
+  title?: string;
   subtitle?:string;
   icon: React.FC;
-  type: 'success' | 'error' | 'info' | 'confirmation';
-  handleConfirm: () => Promise<void>;
+  type: 'success' | 'error' | 'info' | 'confirmation' | 'loading';
+  handleConfirm?: () => Promise<void>;
   handleCancel?: () => void;
 }
 
@@ -35,11 +35,13 @@ const ModalComponent: React.FC<ModalProps> = ({
         <ContainerContent>
           <ModalContent>
             <Icon/>
-            <Title
-              type={type}
-            >
-              {title}
-            </Title>
+            {title && (
+              <Title
+                type={type}
+              >
+                {title}
+              </Title>
+            )}
             {subtitle && (
               <Subtitle
                 type={type}
@@ -61,7 +63,7 @@ const ModalComponent: React.FC<ModalProps> = ({
                   </TextButton>
                 </ButtonCancel>
                 </>
-                :
+                : type !== 'loading' &&
                 <ButtonOk onPress={handleConfirm}>
                   <TextButton type="ok">
                     OK

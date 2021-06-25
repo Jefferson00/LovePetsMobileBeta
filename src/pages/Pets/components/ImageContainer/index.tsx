@@ -6,14 +6,11 @@ import {
   OthersImage,
   OthersImagesContainer,
   UploadImageButton,
+  ImageDeleteContainer,
+  ImageDeleteButton,
 } from './styles';
 
 import Icon from 'react-native-vector-icons/Ionicons';
-
-interface ImagesProps{
-  id: number;
-  image: string | null;
-}
 
 interface PetImages{
   id:string | null;
@@ -24,17 +21,18 @@ interface PetImages{
 
 interface ImageContainerProps{
   images: PetImages[];
+  isUpdated?:boolean;
   handleSelectImage: (index:number) => void;
 }
 
-const ImageContainer: React.FC<ImageContainerProps> = ({images, handleSelectImage}) => {
+const ImageContainer: React.FC<ImageContainerProps> = ({images, isUpdated, handleSelectImage}) => {
 
   return (
     <Container>
       {images[0].image_url ? (
-        <UploadImageButton size={120} radius={60} onPress={() => handleSelectImage(0)}>
-          <MainImage source={{ uri: images[0].image_url }} />
-        </UploadImageButton>
+          <UploadImageButton size={120} radius={60} onPress={() => handleSelectImage(0)}>
+            <MainImage source={{ uri: images[0].image_url }} />
+          </UploadImageButton>
       ) : (
         <UploadImageButton size={120} radius={60} onPress={() => handleSelectImage(0)}>
           <Icon name="camera" size={90} color="#12BABA" />
@@ -43,6 +41,16 @@ const ImageContainer: React.FC<ImageContainerProps> = ({images, handleSelectImag
 
       <OthersImagesContainer>
         {images[1].image_url ?
+          isUpdated ?
+          <ImageDeleteContainer>
+            <UploadImageButton size={30} radius={15} onPress={() => handleSelectImage(1)}>
+              <OthersImage source={{ uri: images[1].image_url }} />
+            </UploadImageButton>
+            <ImageDeleteButton>
+              <Icon name="trash" size={20} color="#BA1212"/>
+            </ImageDeleteButton>
+          </ImageDeleteContainer>
+          :
           <UploadImageButton size={30} radius={15} onPress={() => handleSelectImage(1)}>
             <OthersImage source={{ uri: images[1].image_url }} />
           </UploadImageButton>
@@ -52,6 +60,16 @@ const ImageContainer: React.FC<ImageContainerProps> = ({images, handleSelectImag
           </UploadImageButton>
         }
         {images[2].image_url ?
+          isUpdated ?
+          <ImageDeleteContainer>
+            <UploadImageButton size={30} radius={15} onPress={() => handleSelectImage(2)}>
+              <OthersImage source={{ uri: images[2].image_url }} />
+            </UploadImageButton>
+            <ImageDeleteButton>
+              <Icon name="trash" size={20} color="#BA1212"/>
+            </ImageDeleteButton>
+          </ImageDeleteContainer>
+          :
           <UploadImageButton size={30} radius={15} onPress={() => handleSelectImage(2)}>
             <OthersImage source={{ uri: images[2].image_url }} />
           </UploadImageButton>
@@ -61,6 +79,16 @@ const ImageContainer: React.FC<ImageContainerProps> = ({images, handleSelectImag
           </UploadImageButton>
         }
         {images[3].image_url ?
+          isUpdated ?
+          <ImageDeleteContainer>
+            <UploadImageButton size={30} radius={15} onPress={() => handleSelectImage(3)}>
+              <OthersImage source={{ uri: images[3].image_url }} />
+            </UploadImageButton>
+            <ImageDeleteButton>
+              <Icon name="trash" size={20} color="#BA1212"/>
+            </ImageDeleteButton>
+          </ImageDeleteContainer>
+          :
           <UploadImageButton size={30} radius={15} onPress={() => handleSelectImage(3)}>
             <OthersImage source={{ uri: images[3].image_url }} />
           </UploadImageButton>

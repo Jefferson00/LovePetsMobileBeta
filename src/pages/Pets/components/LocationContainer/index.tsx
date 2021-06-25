@@ -29,11 +29,11 @@ const LocationContainer: React.FC<LocationContainerProps> = ({ latitude, longitu
         Localização
       </Label>
       <InputContainer>
-        <Input
+        {/*<Input
           name="location"
           icon="search"
           placeholder="buscar..."
-        />
+        />*/}
       </InputContainer>
       <Map
         provider={PROVIDER_GOOGLE}
@@ -48,7 +48,6 @@ const LocationContainer: React.FC<LocationContainerProps> = ({ latitude, longitu
             String(e.nativeEvent.coordinate.latitude),
             String(e.nativeEvent.coordinate.longitude),
           )
-          console.log(e.nativeEvent.coordinate);
         }}
       >
         <Marker
