@@ -6,11 +6,11 @@
 
 *EMAIL E SENHA*
 
-- Informando o email e senha de um usúario cadastrado, deverá levar até a home do app
-- Informando o email com formato incorreto deverá  mostrar uma mensagem de erro
-- Informando a senha e/ou email incorreto deverá mostrar uma mensagem de erro
-- Tentar entrar sem digitar deverá mostrar uma mensagem de erro
-- Ao clicar em entrar, mostrar um loading enquanto não houver resposta da requisição
+- _Informando o email e senha de um usúario cadastrado, deverá levar até a home do app_
+- _Informando o email com formato incorreto deverá  mostrar uma mensagem de erro_
+- _Informando a senha e/ou email incorreto deverá mostrar uma mensagem de erro_
+- _Tentar entrar sem digitar deverá mostrar uma mensagem de erro_
+- _Ao clicar em entrar, mostrar um loading enquanto não houver resposta da requisição_
 
 *GOOGLE/FACEBOOK*
 

@@ -33,6 +33,7 @@ import AgeContainer from '../components/AgeContainer';
 import LocationContainer from '../components/LocationContainer';
 import ModalComponent from '../../../components/Modal';
 import Geocoder from '../../../libs/Geocoder';
+import CameraModal from '../../../components/CameraModal';
 
 
 interface PetImages{
@@ -112,6 +113,9 @@ const CreatePet: React.FC = () => {
   const [modalTitle, setModalTitle] = useState('');
   const [modalSubtitle, setModalSubtitle] = useState('');
 
+  const [cameraModal, setCameraModal] = useState(false);
+  const [index, setIndex] = useState(1);
+
   useEffect(() => {
     if (currentLocation.lat && currentLocation.lon) {
       setLatitude(currentLocation.lat);
@@ -126,12 +130,19 @@ const CreatePet: React.FC = () => {
   }, [currentLocation.lat]);
 
   const handleSelectImage = useCallback((index: number) => {
+    setCameraModal(true);
+    setIndex(index);
+
+  }, [images]);
+
+  const handleSelectImageFromGallery = useCallback((index: number) => {
     launchImageLibrary({
       mediaType: 'photo',
       maxHeight: 625,
       maxWidth: 625,
     }, response => {
       if (response.didCancel) {
+        setCameraModal(false);
         return;
       }
       if (response.errorCode) {
@@ -149,7 +160,38 @@ const CreatePet: React.FC = () => {
       }
 
     });
-  }, [images]);
+  },[images]);
+
+  const handleSelectImageFromCamera = useCallback((index: number) => {
+    launchCamera({
+      mediaType: 'photo',
+      maxHeight: 625,
+      maxWidth: 625,
+    }, response => {
+      if (response.didCancel) {
+        setCameraModal(false);
+        return;
+      }
+      if (response.errorCode) {
+        Alert.alert('Erro ao atualizar a imagem');
+        console.log(response.errorMessage);
+        return;
+      }
+
+      const imageUri = response.assets[0].uri;
+
+      if (imageUri) {
+        let newImages = [...images];
+        newImages[index].image_url = imageUri;
+        setImages(newImages);
+      }
+
+    });
+  },[images]);
+
+  const handleCancelCamera = useCallback(() => {
+    setCameraModal(false);
+  },[]);
 
   const handleCreatePet = useCallback(async (data: CreatePetFormData) => {
     try {
@@ -368,6 +410,15 @@ const CreatePet: React.FC = () => {
 
           </Form>
         </FormContainer>
+          <CameraModal
+            onCameraModalCancel={handleCancelCamera}
+            onSelectGallery={() => handleSelectImageFromGallery(index)}
+            onSelectCamera={() => handleSelectImageFromCamera(index)}
+            visible={cameraModal}
+            transparent
+            animationType="slide"
+          />
+
           <ModalComponent
             title={modalTitle}
             subtitle={modalSubtitle}

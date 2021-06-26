@@ -97,7 +97,7 @@ const SignUp: React.FC = () => {
       }
 
       setModalTitle('Erro no cadastro!');
-      setModalSubtitle('Preencha todos os campos corretamente.');
+      setModalSubtitle('Email ou número de telefone já utilizado, tente novamente');
       setModalType('error');
       setModalVisible(true);
       setLoading(false);

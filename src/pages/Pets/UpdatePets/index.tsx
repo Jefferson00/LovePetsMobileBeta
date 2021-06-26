@@ -34,6 +34,7 @@ import LocationContainer from '../components/LocationContainer';
 import { IPetsData , IPetImages, Age, Gender, Specie} from '../../../@types/Pets/IPetsData';
 import ModalComponent from '../../../components/Modal';
 import { usePets } from '../../../hooks/PetsContext';
+import CameraModal from '../../../components/CameraModal';
 
 interface CreatePetFormData {
   name: string;
@@ -106,6 +107,9 @@ const UpdatePet: React.FC= () => {
   const [modalTitle, setModalTitle] = useState('');
   const [modalSubtitle, setModalSubtitle] = useState('');
 
+  const [cameraModal, setCameraModal] = useState(false);
+  const [index, setIndex] = useState(1);
+
   useEffect(() => {
     const imagesParm = route.params.pet.images;
 
@@ -131,12 +135,19 @@ const UpdatePet: React.FC= () => {
   }, []);
 
   const handleSelectImage = useCallback((index: number) => {
+    setCameraModal(true);
+    setIndex(index);
+
+  }, [images]);
+
+  const handleSelectImageFromGallery = useCallback((index: number) => {
     launchImageLibrary({
       mediaType: 'photo',
       maxHeight: 625,
       maxWidth: 625,
     }, response => {
       if (response.didCancel) {
+        setCameraModal(false);
         return;
       }
       if (response.errorCode) {
@@ -147,8 +158,6 @@ const UpdatePet: React.FC= () => {
 
       const imageUri = response.assets[0].uri;
 
-      console.log(imageUri)
-
       if (imageUri) {
         let newImages = [...images];
         newImages[index].image_url = imageUri;
@@ -157,6 +166,33 @@ const UpdatePet: React.FC= () => {
 
     });
   }, [images]);
+
+  const handleSelectImageFromCamera = useCallback((index: number) => {
+    launchCamera({
+      mediaType: 'photo',
+      maxHeight: 625,
+      maxWidth: 625,
+    }, response => {
+      if (response.didCancel) {
+        setCameraModal(false);
+        return;
+      }
+      if (response.errorCode) {
+        Alert.alert('Erro ao atualizar a imagem');
+        console.log(response.errorMessage);
+        return;
+      }
+
+      const imageUri = response.assets[0].uri;
+
+      if (imageUri) {
+        let newImages = [...images];
+        newImages[index].image_url = imageUri;
+        setImages(newImages);
+      }
+
+    });
+  },[images]);
 
   const handleUpdatePet = useCallback(async (data: CreatePetFormData) => {
     try {
@@ -221,6 +257,10 @@ const UpdatePet: React.FC= () => {
       setModalVisible(true);
     }
   }, [age, gender, specie, latitude, longitude]);
+
+  const handleCancelCamera = useCallback(() => {
+    setCameraModal(false);
+  },[]);
 
   const handleCreateImages = async (petData: PetData) => {
     try {
@@ -381,6 +421,14 @@ const UpdatePet: React.FC= () => {
 
           </Form>
         </FormContainer>
+        <CameraModal
+            onCameraModalCancel={handleCancelCamera}
+            onSelectGallery={() => handleSelectImageFromGallery(index)}
+            onSelectCamera={() => handleSelectImageFromCamera(index)}
+            visible={cameraModal}
+            transparent
+            animationType="slide"
+        />
 
         <ModalComponent
             title={modalTitle}

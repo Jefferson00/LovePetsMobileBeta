@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { Alert, Image, TextInput } from 'react-native';
+import { ActivityIndicator, Image, TextInput } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Feather';
 import ModalIcon from 'react-native-vector-icons/Ionicons';
@@ -45,12 +45,14 @@ const SignIn: React.FC = () =>{
   const inputPasswordRef = useRef<TextInput>(null);
   const {signIn, signInGoogle, signInFacebook, socialAuthenticationError} = useAuth();
 
+  const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalType, setModalType] = useState<'success' | 'error' | 'info' | 'confirmation'>('error');
   const [modalTitle, setModalTitle] = useState('');
   const [modalSubtitle, setModalSubtitle] = useState('');
 
   const handleSignIn = useCallback(async (data : SignInFormData)=>{
+    setLoading(true);
     try {
       formRef.current?.setErrors({});
       const schema = Yup.object().shape({
@@ -66,6 +68,8 @@ const SignIn: React.FC = () =>{
         email: data.email,
         password: data.password,
       });
+
+      setLoading(false);
     } catch (error) {
       if (error instanceof Yup.ValidationError){
         const errors = getValidationErrors(error);
@@ -75,6 +79,7 @@ const SignIn: React.FC = () =>{
         return;
       }
 
+      setLoading(false);
       setModalTitle('Erro na autenticação');
       setModalSubtitle('Ocorreu um erro ao fazer login, cheque as credenciais.');
       setModalType('error');
@@ -200,6 +205,16 @@ const SignIn: React.FC = () =>{
               transparent
               visible={modalVisible}
               handleConfirm={handleConfirm}
+              animationType="slide"
+          />
+
+          <ModalComponent
+              type={'loading'}
+              icon={() => (
+                <ActivityIndicator  size="large" color='#BA1212'/>
+              )}
+              transparent
+              visible={loading}
               animationType="slide"
           />
         </FormContainer>

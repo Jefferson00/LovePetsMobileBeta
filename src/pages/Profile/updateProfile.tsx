@@ -1,11 +1,13 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Form } from '@unform/mobile';
 import { FormHandles } from '@unform/core';
 import * as Yup from 'yup';
+import 'yup-phone';
 import getValidationErrors from '../../utils/getValidationErrors';
 import { useNavigation } from '@react-navigation/core';
-import { Alert, TextInput } from 'react-native';
+import { Alert, TextInput, ActivityIndicator } from 'react-native';
+import ModalIcon from 'react-native-vector-icons/Ionicons';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import ImageEditor from "@react-native-community/image-editor";
 
@@ -27,6 +29,8 @@ import Button from '../../components/Button';
 import api from '../../services/api';
 
 import DefaultImg from '../../assets/default.png';
+import ModalComponent from '../../components/Modal';
+import CameraModal from '../../components/CameraModal';
 
 interface SignUpFormData{
   name:string;
@@ -49,7 +53,16 @@ const UpdateProfile: React.FC = () => {
   const inputPasswordRef = useRef<TextInput>(null);
   const inputConfirmPasswordRef = useRef<TextInput>(null);
 
-  const handleSignUp = useCallback(async (data:SignUpFormData) => {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [modalType, setModalType] = useState<'success' | 'error' | 'info' | 'confirmation'>('error');
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalSubtitle, setModalSubtitle] = useState('');
+
+  const [cameraModal, setCameraModal] = useState(false);
+
+  const handleUpdateProfile = useCallback(async (data:SignUpFormData) => {
+    setLoading(true);
     try {
       formRef.current?.setErrors({});
       const schema = Yup.object().shape({
@@ -58,7 +71,7 @@ const UpdateProfile: React.FC = () => {
         old_password: Yup.string(),
         password: Yup.string().when('old_password', {
           is: (oldPass:string) => !!oldPass.length,
-          then: Yup.string().required('Campo obrigatório'),
+          then: Yup.string().required('Campo obrigatório').min(6, 'Mínimo de 6 caracteres'),
           otherwise: Yup.string(),
         }),
         confirmPassword: Yup.string().when('old_password', {
@@ -67,8 +80,8 @@ const UpdateProfile: React.FC = () => {
           otherwise: Yup.string(),
         }).equals(
           [Yup.ref('password')], 'a senha deve ser igual'),
-        phone: Yup.string().required('Telefone é obrigatório!'),
-      })
+        phone: Yup.string().phone('BR', false, 'formato incorreto, Ex: 61 99999-5555').required('Telefone é obrigatório!'),
+      });
 
       await schema.validate(data, {
         abortEarly: false,
@@ -90,47 +103,58 @@ const UpdateProfile: React.FC = () => {
 
       updateUser(response.data);
 
-      navigation.goBack();
-      //router.push('/home');
 
-      Alert.alert(
-        'Perfil atualizado!',
-        'Perfil atualizado com sucesso!',
-      );
+      setModalTitle('Perfil atualizado com sucesso!');
+      setModalSubtitle(' ');
+      setModalType('success');
+      setModalVisible(true);
 
+      setTimeout(() => {
+        navigation.goBack();
+      },1000);
     } catch (error) {
       if (error instanceof Yup.ValidationError){
         const errors = getValidationErrors(error);
 
         formRef.current?.setErrors(errors);
 
-        Alert.alert(
-          'Erro na atualização',
-          'Preencha todos os campos corretamente.',
-        );
+        setModalTitle('Erro na atualização');
+        setModalSubtitle('Preencha todos os campos corretamente.');
+        setModalType('error');
+        setModalVisible(true);
+        setLoading(false);
 
         return;
       }
 
-      Alert.alert(
-        'Erro na atualização',
-        'Ocorreu um erro na atualização dos dados, tente novamente.',
-      );
+      setModalTitle('Erro na atualização');
+      setModalSubtitle('Ocorreu um erro na atualização dos dados, tente novamente.');
+      setModalType('error');
+      setModalVisible(true);
     }
+    setLoading(false);
   },[])
 
   const handleUpdateAvatar = useCallback(() => {
+    setCameraModal(true);
+
+  }, [user.id, updateUser]);
+
+  const handleSelectImageFromGallery = useCallback(() => {
     launchImageLibrary({
       mediaType: 'photo',
       maxHeight: 625,
       maxWidth: 625,
     }, response => {
       if (response.didCancel){
+        setCameraModal(false);
         return;
       }
       if (response.errorCode){
-        Alert.alert('Erro ao atualizar seu aavatar');
-        console.log(response.errorMessage);
+        setModalTitle('Erro na atualização');
+        setModalSubtitle('Ocorreu um erro na atualização do seu avatar, tente novamente.');
+        setModalType('error');
+        setModalVisible(true);
         return;
       }
 
@@ -147,13 +171,60 @@ const UpdateProfile: React.FC = () => {
       api.patch('users/avatar', data).then(apiResponse => {
         updateUser(apiResponse.data);
       }).catch(() =>{
-        Alert.alert(
-          'Erro na atualização!',
-          'Não foi possível atualizar seu avatar, tente novamente.',
-        );
+        setModalTitle('Erro na atualização');
+        setModalSubtitle('Não foi possível atualizar seu avatar, tente novamente.');
+        setModalType('error');
+        setModalVisible(true);
       });
     });
   }, [user.id, updateUser]);
+
+  const handleSelectImageFromCamera = useCallback(() => {
+    launchCamera({
+      mediaType: 'photo',
+      maxHeight: 625,
+      maxWidth: 625,
+    }, response => {
+      if (response.didCancel){
+        setCameraModal(false);
+        return;
+      }
+      if (response.errorCode){
+        setModalTitle('Erro na atualização');
+        setModalSubtitle('Ocorreu um erro na atualização do seu avatar, tente novamente.');
+        setModalType('error');
+        setModalVisible(true);
+        return;
+      }
+
+      const imageUri = response.assets[0].uri;
+
+      const data = new FormData();
+
+      data.append('avatar', {
+        type: 'image/jpeg',
+        name: `${user.id}.jpg`,
+        uri: imageUri,
+      });
+
+      api.patch('users/avatar', data).then(apiResponse => {
+        updateUser(apiResponse.data);
+      }).catch(() =>{
+        setModalTitle('Erro na atualização');
+        setModalSubtitle('Não foi possível atualizar seu avatar, tente novamente.');
+        setModalType('error');
+        setModalVisible(true);
+      });
+    });
+  }, [user.id, updateUser]);
+
+  const handleCancelCamera = useCallback(() => {
+    setCameraModal(false);
+  },[]);
+
+  const handleConfirm = useCallback(async() => {
+    setModalVisible(false);
+  }, []);
 
   return(
     <>
@@ -181,7 +252,7 @@ const UpdateProfile: React.FC = () => {
 
             <Form
               ref={formRef}
-              onSubmit={handleSignUp}
+              onSubmit={handleUpdateProfile}
               style={{marginTop: 33}}
               initialData={{
                 email: user.email,
@@ -262,8 +333,44 @@ const UpdateProfile: React.FC = () => {
               }}/>
             </Form>
           </KeyboardAwareScrollView>
-        </UpdateProfileContainer>
 
+          <CameraModal
+            onCameraModalCancel={handleCancelCamera}
+            onSelectGallery={() => handleSelectImageFromGallery()}
+            onSelectCamera={() => handleSelectImageFromCamera()}
+            visible={cameraModal}
+            transparent
+            animationType="slide"
+          />
+          <ModalComponent
+              title={modalTitle}
+              subtitle={modalSubtitle}
+              type={modalType}
+              icon={() => {
+                if(modalType === 'error' ){
+                  return (<ModalIcon name="alert-circle" size={45} color='#BA1212'/>)
+                }else if(modalType === 'success' ){
+                  return (<ModalIcon name="checkmark-circle" size={45} color='#12BABA'/>)
+                }else{
+                  return (<ModalIcon name="alert-circle" size={45} color='#BA1212'/>)
+                }
+              }}
+              transparent
+              visible={modalVisible}
+              handleConfirm={handleConfirm}
+              animationType="slide"
+          />
+
+          <ModalComponent
+              type={'loading'}
+              icon={() => (
+                <ActivityIndicator  size="large" color='#BA1212'/>
+              )}
+              transparent
+              visible={loading}
+              animationType="slide"
+          />
+        </UpdateProfileContainer>
       </Container>
       <TabMenu/>
     </>
