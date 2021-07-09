@@ -36,11 +36,11 @@ import Geocoder from '../../../libs/Geocoder';
 import CameraModal from '../../../components/CameraModal';
 
 
-interface PetImages{
-  id:string;
-  pet_id:string;
-  image:string;
-  image_url:string | null;
+interface PetImages {
+  id: string;
+  pet_id: string;
+  image: string;
+  image_url: string | null;
 }
 
 interface CreatePetFormData {
@@ -147,7 +147,7 @@ const CreatePet: React.FC = () => {
       }
       if (response.errorCode) {
         Alert.alert('Erro ao atualizar a imagem');
-        console.log(response.errorMessage);
+        setCameraModal(false);
         return;
       }
 
@@ -158,9 +158,9 @@ const CreatePet: React.FC = () => {
         newImages[index].image_url = imageUri;
         setImages(newImages);
       }
-
+      setCameraModal(false);
     });
-  },[images]);
+  }, [images]);
 
   const handleSelectImageFromCamera = useCallback((index: number) => {
     launchCamera({
@@ -174,7 +174,7 @@ const CreatePet: React.FC = () => {
       }
       if (response.errorCode) {
         Alert.alert('Erro ao atualizar a imagem');
-        console.log(response.errorMessage);
+        setCameraModal(false);
         return;
       }
 
@@ -185,13 +185,13 @@ const CreatePet: React.FC = () => {
         newImages[index].image_url = imageUri;
         setImages(newImages);
       }
-
+      setCameraModal(false);
     });
-  },[images]);
+  }, [images]);
 
   const handleCancelCamera = useCallback(() => {
     setCameraModal(false);
-  },[]);
+  }, []);
 
   const handleCreatePet = useCallback(async (data: CreatePetFormData) => {
     try {
@@ -288,7 +288,7 @@ const CreatePet: React.FC = () => {
 
       setTimeout(() => {
         navigation.goBack();
-      },1000);
+      }, 1000);
 
     } catch (error) {
       setModalTitle('Erro no cadastro');
@@ -298,14 +298,14 @@ const CreatePet: React.FC = () => {
     };
   }
 
-  const handleConfirm = useCallback(async() => {
+  const handleConfirm = useCallback(async () => {
     setModalVisible(false);
   }, []);
 
-  const selectLocation = useCallback((lat:string, lon:string) => {
+  const selectLocation = useCallback((lat: string, lon: string) => {
     setLatitude(Number(lat));
     setLongitude(Number(lon));
-  },[]);
+  }, []);
 
   return (
     <>
@@ -410,43 +410,43 @@ const CreatePet: React.FC = () => {
 
           </Form>
         </FormContainer>
-          <CameraModal
-            onCameraModalCancel={handleCancelCamera}
-            onSelectGallery={() => handleSelectImageFromGallery(index)}
-            onSelectCamera={() => handleSelectImageFromCamera(index)}
-            visible={cameraModal}
-            transparent
-            animationType="slide"
-          />
+        <CameraModal
+          onCameraModalCancel={handleCancelCamera}
+          onSelectGallery={() => handleSelectImageFromGallery(index)}
+          onSelectCamera={() => handleSelectImageFromCamera(index)}
+          visible={cameraModal}
+          transparent
+          animationType="slide"
+        />
 
-          <ModalComponent
-            title={modalTitle}
-            subtitle={modalSubtitle}
-            type={modalType}
-            icon={() => {
-              if(modalType === 'error' ){
-                return (<Icon name="alert-circle" size={45} color='#BA1212'/>)
-              }else if(modalType === 'success' ){
-                return (<Icon name="checkmark-circle" size={45} color='#12BABA'/>)
-              }else{
-                return (<Icon name="alert-circle" size={45} color='#BA1212'/>)
-              }
-            }}
-            transparent
-            visible={modalVisible}
-            handleConfirm={handleConfirm}
-            animationType="slide"
-         />
+        <ModalComponent
+          title={modalTitle}
+          subtitle={modalSubtitle}
+          type={modalType}
+          icon={() => {
+            if (modalType === 'error') {
+              return (<Icon name="alert-circle" size={45} color='#BA1212' />)
+            } else if (modalType === 'success') {
+              return (<Icon name="checkmark-circle" size={45} color='#12BABA' />)
+            } else {
+              return (<Icon name="alert-circle" size={45} color='#BA1212' />)
+            }
+          }}
+          transparent
+          visible={modalVisible}
+          handleConfirm={handleConfirm}
+          animationType="slide"
+        />
 
-          <ModalComponent
-            type={'loading'}
-            icon={() => (
-              <ActivityIndicator  size="large" color='#BA1212'/>
-            )}
-            transparent
-            visible={loading}
-            animationType="slide"
-         />
+        <ModalComponent
+          type={'loading'}
+          icon={() => (
+            <ActivityIndicator size="large" color='#BA1212' />
+          )}
+          transparent
+          visible={loading}
+          animationType="slide"
+        />
 
       </Container>
       <TabMenu />

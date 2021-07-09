@@ -24,71 +24,71 @@ import { useNavigation } from '@react-navigation/core';
 import DefaultImg from '../../assets/default.png';
 
 const Profile: React.FC = () => {
-  const {signOut, user} = useAuth();
+  const { signOut, user } = useAuth();
   const navigation = useNavigation();
 
   return (
     <>
-    <Container>
-      <Header title="Perfil"/>
+      <Container>
+        <Header title="Perfil" />
 
-      <UserProfileContainer>
-        <ImageContainer>
-          {user.avatar_url ?
-            <UserAvatar source={{uri: user.avatar_url}} />
-            :
-            <UserAvatar source={DefaultImg} />
-          }
-        </ImageContainer>
+        <UserProfileContainer>
+          <ImageContainer>
+            {user.avatar_url ?
+              <UserAvatar source={{ uri: user.avatar_url }} />
+              :
+              <UserAvatar source={DefaultImg} />
+            }
+          </ImageContainer>
 
-        <UserName>
-          {user.name}
-        </UserName>
-        <LocationText>
-          Brasília-DF
-        </LocationText>
+          <UserName>
+            {user.name}
+          </UserName>
+          <LocationText>
+            Brasília-DF
+          </LocationText>
 
-        <EditContainer onPress={() => navigation.navigate('UpdateProfile')}>
-          <Icon name="edit-2" size={20} color="#12BABA"/>
-          <EditText>
-            Editar Perfil
-          </EditText>
-        </EditContainer>
+          <EditContainer onPress={() => navigation.navigate('UpdateProfile')}>
+            <Icon name="edit-2" size={20} color="#12BABA" />
+            <EditText>
+              Editar Perfil
+            </EditText>
+          </EditContainer>
 
-      </UserProfileContainer>
+        </UserProfileContainer>
 
-      <ProfileButton onPress={() => navigation.navigate('MyPets')}>
-        <ProfileButtonText>
-          Meus Anúncios
-        </ProfileButtonText>
-      </ProfileButton>
+        <ProfileButton onPress={() => navigation.navigate('MyPets')}>
+          <ProfileButtonText>
+            Meus Anúncios
+          </ProfileButtonText>
+        </ProfileButton>
 
-      <ProfileButton onPress={() => navigation.navigate('FavPets')}>
-        <ProfileButtonText>
-          Meus Favoritos
-        </ProfileButtonText>
-      </ProfileButton>
+        <ProfileButton onPress={() => navigation.navigate('FavPets')}>
+          <ProfileButtonText>
+            Meus Favoritos
+          </ProfileButtonText>
+        </ProfileButton>
 
-      <ProfileButton>
-        <ProfileButtonText>
-          Ajuda
-        </ProfileButtonText>
-      </ProfileButton>
+        <ProfileButton>
+          <ProfileButtonText>
+            Ajuda
+          </ProfileButtonText>
+        </ProfileButton>
 
-      <ProfileButton onPress={signOut}>
-        <ProfileButtonText>
-          Sair
-        </ProfileButtonText>
-      </ProfileButton>
+        <ProfileButton onPress={signOut}>
+          <ProfileButtonText>
+            Sair
+          </ProfileButtonText>
+        </ProfileButton>
 
-      <ProfileButton style={{backgroundColor:'#BA1212'}}>
-        <ProfileButtonText style={{color: '#FFFFFF'}}>
-          Excluir conta
-        </ProfileButtonText>
-      </ProfileButton>
+        <ProfileButton style={{ backgroundColor: '#BA1212' }}>
+          <ProfileButtonText style={{ color: '#FFFFFF' }}>
+            Excluir conta
+          </ProfileButtonText>
+        </ProfileButton>
 
-    </Container>
-    <TabMenu/>
+      </Container>
+      <TabMenu />
     </>
   )
 }

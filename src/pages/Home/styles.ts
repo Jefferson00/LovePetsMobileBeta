@@ -3,14 +3,10 @@ import styled from 'styled-components/native';
 export const Container = styled.View`
   flex: 1;
   align-items: center;
+  background-color: #F43434;
   justify-content: center;
-  padding: 100px 17px 0 17px;
+  padding-top: 100px;
 `
-export const ResultList = styled.FlatList`
-  flex: 1;
-  width: 100%;
-`
-
 export const CardItem = styled.View`
   height: 535px;
   width: 100%;
@@ -21,7 +17,7 @@ export const CardItem = styled.View`
   overflow: hidden;
 `
 export const PetImage = styled.Image`
-  width: 342px;
+  width: 100%;
   height: 100%;
   border-width: 1px;
   border-color: #ffffff;

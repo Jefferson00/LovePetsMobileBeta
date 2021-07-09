@@ -1,5 +1,5 @@
 import styled from 'styled-components/native';
-import {Animated} from 'react-native';
+import { Animated } from 'react-native';
 
 export const ContentContainer = styled(Animated.View)`
   position: absolute;
@@ -92,4 +92,21 @@ export const SharedContainer = styled.TouchableOpacity`
 export const ReportContainer = styled.TouchableOpacity`
   flex-direction: row;
   align-items: center;
+`
+export const DotsContainer = styled.View`
+  position: absolute;
+  top: -25px;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+`
+export const Dots = styled.View`
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: #f43434;
+  margin-right: 10px;
+  border-width: 1px;
+  border-color: #fff;
 `
