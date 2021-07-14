@@ -1,107 +1,68 @@
-# Fluxo de autenticação
+# Love Pets: Amor aos animais
+<h2 align="center"> 
+ Aplicação para conectar pessoas que desejam doar e ou adotar pets 
+</h2>
 
-**ENTRAR**
+<p align="center">
+  <img alt="Version" src="https://img.shields.io/badge/version-1.0-brightgreen">
+  <img alt="Repository size" src="https://img.shields.io/github/repo-size/Jefferson00/LovePetsMobileBeta">
+  <a href="https://www.linkedin.com/in/jefferson-c-silva-aa1b7b1a9/">
+    <img alt="Made by Jefferson" src="https://img.shields.io/badge/made%20by-Jefferson-blue">
+  </a>
+</p>
 
-- _Pela primeira vez, a primeira tela deverá ser a welcome_
+<p align="center">
+  <img src=".github/preview.png">
+</p>
 
-*EMAIL E SENHA*
+## 💻 Projeto
 
-- _Informando o email e senha de um usúario cadastrado, deverá levar até a home do app_
-- _Informando o email com formato incorreto deverá  mostrar uma mensagem de erro_
-- _Informando a senha e/ou email incorreto deverá mostrar uma mensagem de erro_
-- _Tentar entrar sem digitar deverá mostrar uma mensagem de erro_
-- _Ao clicar em entrar, mostrar um loading enquanto não houver resposta da requisição_
+Love pets: amor aos animais, é um projeto que tem como ideia conectar pessoas que desejam adotar ou doar pets baseado na localidade do usuário. Essa é a versão mobile da aplicação.
 
-*GOOGLE/FACEBOOK*
+## 🚀 Tecnologias
 
-- Deverá permitir logar no app com as credenciais do e-mail do google utilizado
-- Caso o e-mail já esteja sendo utilizado em outro provedor, deverá informar a mensagem
-- No primeiro acesso, deverá cadastrar as informações do usuário no banco (verificar melhor forma de cadastrar a senha)
+- TypeScript
+- React Native
+- Styled Components
+- Firebase
 
-**CADASTRAR**
+## 🚀 Features
 
-- Deverá ser possível cadastrar uma nova conta informando todos os dados corretamente
-- Informando os dados em formato incorreto ou em branco deverá mostrar uma mensagem de erro
-- Ao clicar em cadastrar, mostrar um loading enquanto não houver resposta da requisição
+- O usuário poderá se cadastrar ou efetuar o login social com o google ou facebook.
 
-# Fluxo de listagem dos anúncios na home
+- O usuário terá acesso aos anúncios de adoção próximo ao local onde ele está.
 
-**LISTAGEM PADRÃO**
+- O usuário poderá filtrar por especie, gênero e distância de alcance dos anúncios.
 
-- _Listar no máximo 5 anúncios com base na localização do dispositivo e com base nos filtros padrões_
-- _Caso o usuário esteja logado, listar os favoritos e verificar na lista padrão quais são favoritos_
-- _Listar corretamente a distância do pet com base na localização atual_
-- Listar corretamente o tempo em que o anúncio foi criado
-- _Listar corretamente as imagens dos anúncios_
-- _O conteúdo do card deverá expandir ao clicar, mostrando as informações do pet corretamente._
-- _Ao puxar pra baixo no inicio da lista deverá atualizar a lista_
-- _Ao chegar no final da lista deverá carregar mais anúncios_
+- O usuário logado poderá, salvar anúncios como favoritos, cadastrar, aditar e excluir anúncios.
 
-**LISTAGEM COM FILTROS**
+- O usuário poderá compartilhar e denunciar o anúncio, assim como entrar em contato com o responsável pelo anúncio via whatsapp.
 
-- _Poder filtrar os anúncios por especie_
-- _Poder filtrar os anúncios por genero_
-- _Poder filtrar os anúncios por distância_
-- _Ao selecionar os filtros, mostrar loading até recompor a lista_
-- O menu da lista de filtros deverá abrir ao primeiro clique
+- O usuário também poderá alterar informações do seu perfil e excluir sua conta.
 
-# Fluxo de criação, listagem e exclusão dos anúncios favoritos
 
-- _Com o usuário logado, deverá poder salvar o anúncio como favorito na lista da home_
-- _Deverá listar os anúncios favoritos na tela de favoritos_
-- Deverá mostrar loading enquanto não houver resposta da requisição
-- _Deverá mostrar uma mensagem padrão caso o usuário não possua favoritos_
-- __Ao clicar pra salvar o favorito, deverá alterar o icone até obter uma resposta da requisição__
-- _Deverá poder excluir o favorito ao clicar novamente no coração, tanto na lista, como na tela de favoritos_
+## ℹ️ How To Use
 
-# Fluxo de criação de anúncio
+```bash
+# Clone this repository
+$ git clone https://github.com/Jefferson00/LovePetsMobileBeta
 
-**CADASTRO DAS IMAGENS**
+# Go into the repository
+$ cd LovePetsMobileBeta
 
-- Deverá ser possível cadastrar um anúncio com no mínimo 1 imagem e máximo de 4.
-- Deverá poder cadastrar imagens da galeria e da camera
-- Ao selecionar as imagens, elas deverão ser postas nas posições correspondentes
-- _Ao tentar cadastrar sem imagens deverá mostrar uma mensagem de erro_
+# Install dependencies
+$ yarn install
 
-**ESPECIE**
+# Run
+$ yarn start
+$ yarn android or yarn ios
 
-- A especie padrão é 'others' caso o usuário não selecione nenhum
+```
 
-**NOME**
+## 📝 License
 
-- O nome pode ficar em branco caso o pet não tenha sido batizado ainda
+<a href="/LICENSE">
+    <img alt="Made by Jefferson" src="https://img.shields.io/badge/licence-MIT-blue">
+ </a>
 
-**IDADE**
-
-- Idade padrão caso o usuário não selecione nenhuma
-
-**GENERO**
-
-- Genero padrão caso o usuário não selecione nenhuma
-
-**DESCRIÇÃO**
-
-- O usuário deverá preencher a descrição, caso contrario mostrar mensagem de erro
-
-**LOCALIZAÇÃO**
-
-- A localização padrão será a do dispositivo
-- O usuário poderá selecionar a localidade clicando no mapa
-- ``O usuário deverá poder buscar por algum local``
-
-**CADASTRO**
-
-- Ao clicar em cadastrar deverá mostrar loading até a resposta da requisição
-- Mostrar mensagem de sucesso ou erro
-- Caso dê sucesso, setar nulo a localidade selecionada, e redirecionar para a tela anterior
-- Caso dê erro continuar na pagina
-
-# Fluxo de listagem dos anúncios do usuário logado
-
-- Deverá listar os anúncios do usuário
-- Mostrar loading enquanto não houver resposta da requisição
-- Deverá mostrar uma mensagem padrão caso o usuário não possua anúncios
-
-# Fluxo de edição de anúncio
-
-# Fluxo de exclusão de anúncio
+Made with ♥ by Jefferson C Silva :wave: [Get in touch!](https://www.linkedin.com/in/jefferson-c-silva)
