@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 
 import Icon from 'react-native-vector-icons/Feather';
 
@@ -22,10 +22,28 @@ import Header from '../../components/Header';
 import { useNavigation } from '@react-navigation/core';
 
 import DefaultImg from '../../assets/default.png';
+import ModalComponent from '../../components/Modal';
+import api from '../../services/api';
 
 const Profile: React.FC = () => {
   const { signOut, user } = useAuth();
   const navigation = useNavigation();
+
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const handleDeleteOpenModal = useCallback(() => {
+    setModalVisible(true);
+  }, []);
+
+  const handleDeleteAccount = useCallback(async () => {
+    await api.delete('users');
+    setModalVisible(false);
+    signOut();
+  }, []);
+
+  const handleCancelDelete = useCallback(() => {
+    setModalVisible(false);
+  }, []);
 
   return (
     <>
@@ -44,9 +62,9 @@ const Profile: React.FC = () => {
           <UserName>
             {user.name}
           </UserName>
-          <LocationText>
+          {/*<LocationText>
             Brasília-DF
-          </LocationText>
+          </LocationText>*/}
 
           <EditContainer onPress={() => navigation.navigate('UpdateProfile')}>
             <Icon name="edit-2" size={20} color="#12BABA" />
@@ -81,11 +99,24 @@ const Profile: React.FC = () => {
           </ProfileButtonText>
         </ProfileButton>
 
-        <ProfileButton style={{ backgroundColor: '#BA1212' }}>
+        <ProfileButton style={{ backgroundColor: '#BA1212' }} onPress={handleDeleteOpenModal}>
           <ProfileButtonText style={{ color: '#FFFFFF' }}>
             Excluir conta
           </ProfileButtonText>
         </ProfileButton>
+
+        <ModalComponent
+          title="Deseja excluir seu anúncio?"
+          type="confirmation"
+          icon={() => (
+            <Icon name="alert-circle" size={45} color='#BA1212' />
+          )}
+          transparent
+          visible={modalVisible}
+          handleCancel={handleCancelDelete}
+          handleConfirm={handleDeleteAccount}
+          animationType="slide"
+        />
 
       </Container>
       <TabMenu />
