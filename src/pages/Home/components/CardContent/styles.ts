@@ -110,3 +110,45 @@ export const Dots = styled.View`
   border-width: 1px;
   border-color: #fff;
 `
+
+export const ContainerContent = styled.View`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  background: #00000090;
+  padding: 0 28px;
+`
+export const ModalContent = styled.View`
+  background: #FFF;
+  align-items: center;
+  padding: 34px 22px;
+  border-radius: 20px;
+  width: 100%;
+`
+export const RadioContainer = styled.View`
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+`
+export const ReportTitleContainer = styled.View`
+  margin-bottom: 32px;
+`
+export const RadioLabel = styled.Text`
+  font-family: 'Roboto-Regular';
+  font-size: 14px;
+  color:#656565;
+`
+export const ReportSubmit = styled.TouchableOpacity`
+  height: 60px;
+  width: 100%;
+  margin-top: 32px;
+  border-radius: 20px;
+  background: #12BABA;
+  justify-content: center;
+  align-items: center;
+`
+export const ReportSubmitText = styled.Text`
+  font-family: 'Roboto-Regular';
+  font-size: 14px;
+  color:#FFF;
+`

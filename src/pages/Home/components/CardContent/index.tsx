@@ -1,6 +1,7 @@
 import React, { useRef, useCallback, useState } from 'react';
-import { Animated, TouchableOpacity, ActivityIndicator, Alert, Text, Dimensions } from 'react-native';
+import { Animated, TouchableOpacity, ActivityIndicator, Alert, Modal, TouchableWithoutFeedback } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+
 
 import {
   ContentContainer,
@@ -21,13 +22,21 @@ import {
   DescriptionContainer,
   ExpandButton,
   DotsContainer,
-  Dots
+  Dots,
+  ContainerContent,
+  ModalContent,
+  RadioContainer,
+  RadioLabel,
+  ReportSubmit,
+  ReportTitleContainer,
+  ReportSubmitText,
 } from './styles';
 
 import { useAuth } from '../../../../hooks/AuthContext';
 import { usePets } from '../../../..//hooks/PetsContext';
 import { useLocation } from '../../../..//hooks/LocationContext';
 import api from '../../../../services/api';
+import { RadioButton } from 'react-native-paper';
 
 import getDistanceLocation from '../../../../utils/getDistanceLocation';
 import getDistanceTime from '../../../../utils/getDistanceTime';
@@ -38,20 +47,39 @@ import { IPetsData } from '../../../../@types/Pets/IPetsData';
 
 import DefaultImg from '../../../../assets/default.png';
 import { useNavigation } from '@react-navigation/native';
-import { View } from 'react-native';
+import ModalComponent from '../../../../components/Modal';
 
 interface CardContentProps {
   item: IPetsData;
 }
 
+type FormData = {
+  denuncia: string;
+};
+
 const CardContent: React.FC<CardContentProps> = ({ item }) => {
   const navigation = useNavigation();
+  const [checkedOption, setCheckedOption] = useState('');
+
+  const [reportSended, setReportSended] = useState(false);
+  const [modalType, setModalType] = useState<'success' | 'error' | 'info' | 'confirmation'>('error');
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalSubtitle, setModalSubtitle] = useState('');
+
   const { favPets, loadFavs } = usePets();
   const { user } = useAuth();
   const { currentLocation } = useLocation();
   const [loadingFavClicked, setLoadingFavClicked] = useState(false);
+  const [reportModalIsOpen, setReportModalIsOpen] = useState(false);
 
-  let windowWidth = Dimensions.get('window').width / 2
+  const reportRadioOptions = [
+    { id: 'spam', value: 'spam', label: 'É spam' },
+    { id: 'nudez ou atividade sexual', value: 'nudez ou atividade sexual', label: 'Nudez ou atividade sexual' },
+    { id: 'simbolos ou discurso de odio', value: 'simbolos ou discurso de odio', label: 'Símbolos ou discurso de ódio' },
+    { id: 'violencia', value: 'violencia', label: 'Violência' },
+    { id: 'golpe ou fraude', value: 'golpe ou fraude', label: 'Golpe ou fraude' },
+    { id: 'informação falsa', value: 'informação falsa', label: 'Informação falsa' },
+  ]
 
   const cardContentAnimation = useRef(new Animated.Value(53)).current;
 
@@ -109,6 +137,27 @@ const CardContent: React.FC<CardContentProps> = ({ item }) => {
     }
   }, [cardContentAnimation, showCardContent]);
 
+  const handleReport = useCallback(async () => {
+    if (checkedOption) {
+      try {
+        setReportSended(true);
+
+        setTimeout(() => {
+          setReportModalIsOpen(false);
+        }, 2000);
+
+        /*await api.post('/report/send', {
+          pet_id: item.id,
+          user_id: item.user_id,
+          motivation: checkedOption
+        });*/
+
+      } catch (error) {
+        setReportModalIsOpen(false);
+      }
+      setReportSended(false);
+    }
+  }, [checkedOption]);
 
   return (
     <>
@@ -190,7 +239,7 @@ const CardContent: React.FC<CardContentProps> = ({ item }) => {
                 <Subtitle>Compartilhar</Subtitle>
               </SharedContainer>
 
-              <ReportContainer>
+              <ReportContainer onPress={() => setReportModalIsOpen(true)}>
                 <Icon name="alert-circle" size={25} color="#BA1212" style={{ marginRight: 6 }} />
                 <Subtitle>Denunciar</Subtitle>
               </ReportContainer>
@@ -198,6 +247,47 @@ const CardContent: React.FC<CardContentProps> = ({ item }) => {
           </BodyContent>
         </>
       </ContentContainer>
+
+
+      <Modal
+        transparent
+        visible={reportModalIsOpen}
+        animationType="slide"
+      >
+        <TouchableWithoutFeedback onPress={() => setReportModalIsOpen(false)}>
+          <ContainerContent>
+            <TouchableWithoutFeedback>
+              {reportSended ?
+                <ModalContent>
+                  <Title>Sua denúncia foi encaminhada, obrigado!</Title>
+                </ModalContent>
+                :
+                <ModalContent>
+                  <ReportTitleContainer>
+                    <Title>Por que você está denunciando esse anúncio?</Title>
+                  </ReportTitleContainer>
+                  {reportRadioOptions.map((option, index) => (
+                    <RadioContainer key={option.id}>
+                      <RadioButton
+                        key={option.id}
+                        value={option.value}
+                        status={checkedOption === option.value ? 'checked' : 'unchecked'}
+                        onPress={() => setCheckedOption(option.value)}
+                      />
+                      <RadioLabel>{option.label}</RadioLabel>
+                    </RadioContainer>
+                  ))}
+                  <ReportSubmit onPress={handleReport} >
+                    <ReportSubmitText>Enviar</ReportSubmitText>
+                  </ReportSubmit>
+                </ModalContent>
+              }
+            </TouchableWithoutFeedback>
+          </ContainerContent>
+        </TouchableWithoutFeedback>
+      </Modal>
+
+
     </>
   )
 }
