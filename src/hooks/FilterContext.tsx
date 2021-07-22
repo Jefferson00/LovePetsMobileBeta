@@ -1,7 +1,7 @@
-import React, {createContext, useCallback, useContext, useEffect, useState} from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 
-interface FilterContextData{
+interface FilterContextData {
   specieFilter: SpecieProps;
   genderFilter: GenderProps;
   distance: number;
@@ -12,41 +12,37 @@ interface FilterContextData{
   handleSetPage: (page: number) => void;
 }
 
-type SpecieProps =  'dog' | 'cat' | 'rodent' | 'rabbit' | 'fish' | 'others' | null ;
+type SpecieProps = 'dog' | 'cat' | 'rodent' | 'rabbit' | 'fish' | 'others' | null;
 type GenderProps = 'male' | 'female' | null;
 
 export const FilterContext = createContext<FilterContextData>({} as FilterContextData);
 
-export const FilterProvider : React.FC = ({children}) => {
+export const FilterProvider: React.FC = ({ children }) => {
   const [specieFilter, setSpecieFilter] = useState<SpecieProps>(null);
   const [genderFilter, setGenderFilter] = useState<GenderProps>(null);
   const [distance, setDistance] = useState(50);
   const [page, setPage] = useState(1);
 
-  const handleSetSpecieFilter = useCallback((specie: SpecieProps)=> {
-      setPage(1);
-      setSpecieFilter(specie);
+  const handleSetSpecieFilter = useCallback((specie: SpecieProps) => {
+    setPage(1);
+    setSpecieFilter(specie);
   }, []);
 
-  const handleSetGenderFilter = useCallback((gender: GenderProps)=> {
+  const handleSetGenderFilter = useCallback((gender: GenderProps) => {
     setPage(1);
     setGenderFilter(gender);
   }, []);
 
-  const handleSetDistanceFilter = useCallback((distance: number)=> {
+  const handleSetDistanceFilter = useCallback((distance: number) => {
     setPage(1);
     setDistance(distance);
   }, []);
 
-  const handleSetPage = useCallback((page: number)=> {
+  const handleSetPage = useCallback((page: number) => {
     setPage(page);
   }, []);
 
-  useEffect(() => {
-
-  },[]);
-
-  return(
+  return (
     <FilterContext.Provider value={{
       specieFilter,
       genderFilter,

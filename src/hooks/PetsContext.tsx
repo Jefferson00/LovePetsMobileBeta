@@ -1,57 +1,53 @@
-import React, {createContext, useCallback, useContext, useEffect, useState} from 'react';
+import React, { createContext, useCallback, useContext, useState } from 'react';
 import api from '../services/api';
-import { useAuth } from './AuthContext';
 
-import { IPetsData , IPetImages, Age, Gender, Specie} from '../@types/Pets/IPetsData';
+import { IPetsData, IPetImages } from '../@types/Pets/IPetsData';
 
-interface FavsData{
-  id:string;
-  user_id:string;
-  pet_id:string;
-  pet:IPetsData;
+interface FavsData {
+  id: string;
+  user_id: string;
+  pet_id: string;
+  pet: IPetsData;
 }
 
-
-
-interface PetsContextData{
-  favPets:FavsData[];
+interface PetsContextData {
+  favPets: FavsData[];
   myPets: IPetsData[];
-  loadFavs:() => Promise<void>;
-  loadMyPets:() => Promise<void>;
-  handleSelectMyPet:(pet: IPetsData) =>void;
-  handleUnselectMyPet:() =>void;
-  resetPetsStates:() =>void;
-  handleDeleteMyPet:() => Promise<void>;
-  handleDeleteFavPet:(id:string) => Promise<void>;
+  loadFavs: () => Promise<void>;
+  loadMyPets: () => Promise<void>;
+  handleSelectMyPet: (pet: IPetsData) => void;
+  handleUnselectMyPet: () => void;
+  resetPetsStates: () => void;
+  handleDeleteMyPet: () => Promise<void>;
+  handleDeleteFavPet: (id: string) => Promise<void>;
 }
 
 export const PetsContext = createContext<PetsContextData>({} as PetsContextData);
 
-export const PetsProvider : React.FC = ({children}) => {
+export const PetsProvider: React.FC = ({ children }) => {
   const [myPets, setMyPets] = useState<IPetsData[]>([]);
   const [pet, setPet] = useState<IPetsData>({} as IPetsData);
 
   const [favPets, setFavPets] = useState<FavsData[]>([]);
-  const [fav, setFav] = useState<FavsData>({} as FavsData);
 
   let pets: IPetsData[] = [];
-  const loadMyPets = useCallback( async() => {
+  const loadMyPets = useCallback(async () => {
     const response = await api.get('/pets/me');
 
     pets = response.data;
     pets = await setMyPetImages(pets);
 
-    if(JSON.stringify(pets) !== JSON.stringify(myPets)){
+    if (JSON.stringify(pets) !== JSON.stringify(myPets)) {
       setMyPets(pets);
     }
   }, [myPets, pets]);
 
-  const resetPetsStates = () =>{
+  const resetPetsStates = () => {
     setMyPets([]);
     setFavPets([]);
   }
 
-  const setMyPetImages = useCallback(async(petsArr: IPetsData[]): Promise<IPetsData[]> => {
+  const setMyPetImages = useCallback(async (petsArr: IPetsData[]): Promise<IPetsData[]> => {
     const mapPromises = petsArr.map(async (pet) => {
       let petsWithImages = Object.assign({}, pet)
       petsWithImages.images = await findPetImages(pet.id);
@@ -65,7 +61,7 @@ export const PetsProvider : React.FC = ({children}) => {
     setPet(pet);
   }, []);
 
-  const handleDeleteMyPet = useCallback(async() => {
+  const handleDeleteMyPet = useCallback(async () => {
     try {
       await api.delete(`pets/${pet?.id}`);
 
@@ -80,7 +76,7 @@ export const PetsProvider : React.FC = ({children}) => {
   }, [pet]);
 
   let favs: FavsData[];
-  const loadFavs = useCallback( async() => {
+  const loadFavs = useCallback(async () => {
     const response = await api.get('/favs');
 
     favs = response.data;
@@ -89,7 +85,7 @@ export const PetsProvider : React.FC = ({children}) => {
     setFavPets(favs);
   }, []);
 
-  const setFavPetImages = useCallback(async(favsArr: FavsData[]): Promise<FavsData[]> => {
+  const setFavPetImages = useCallback(async (favsArr: FavsData[]): Promise<FavsData[]> => {
     const mapPromises = favsArr.map(async (fav) => {
       let petsWithImages = Object.assign({}, fav)
       petsWithImages.pet.images = await findPetImages(fav.pet.id);
@@ -99,17 +95,17 @@ export const PetsProvider : React.FC = ({children}) => {
     return await Promise.all(mapPromises);
   }, []);
 
-    const findPetImages = useCallback(async(pet_id:string) : Promise<IPetImages[]> => {
-      let images: IPetImages[] = []
-        try {
-          const response = await api.get(`/images/${pet_id}`);
-          images = response.data;
-        } catch (error) {
-        }
-        return images;
+  const findPetImages = useCallback(async (pet_id: string): Promise<IPetImages[]> => {
+    let images: IPetImages[] = []
+    try {
+      const response = await api.get(`/images/${pet_id}`);
+      images = response.data;
+    } catch (error) {
+    }
+    return images;
   }, []);
 
-  const handleDeleteFavPet = useCallback(async(id:string) => {
+  const handleDeleteFavPet = useCallback(async (id: string) => {
     try {
       await api.delete(`favs/${id}`);
 
@@ -119,12 +115,7 @@ export const PetsProvider : React.FC = ({children}) => {
     }
   }, [favPets]);
 
-  useEffect(() => {
-      //loadMyPets();
-     // loadFavs();
-  },[]);
-
-  return(
+  return (
     <PetsContext.Provider value={{
       favPets,
       myPets,

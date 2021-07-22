@@ -1,4 +1,4 @@
-import React, {createContext, useCallback, useContext, useEffect, useState} from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import {
   Alert,
   PermissionsAndroid,
@@ -9,7 +9,7 @@ import {
 import Geolocation, { GeoPosition } from 'react-native-geolocation-service';
 
 
-interface locationContextData{
+interface locationContextData {
   currentLocation: Location;
 }
 
@@ -20,8 +20,8 @@ interface Location {
 
 export const LocationContext = createContext<locationContextData>({} as locationContextData);
 
-export const LocationProvider : React.FC = ({children}) => {
-  const [currentLocation, setCurrentLocation] = useState<Location>({lat: -15.780107, lon: -48.140725});
+export const LocationProvider: React.FC = ({ children }) => {
+  const [currentLocation, setCurrentLocation] = useState<Location>({ lat: -15.780107, lon: -48.140725 });
   const [location, setLocation] = useState<GeoPosition | null>(null);
 
   const hasLocationPermission = async () => {
@@ -65,10 +65,10 @@ export const LocationProvider : React.FC = ({children}) => {
     return false;
   };
 
-  async function getLocation(){
+  async function getLocation() {
     const hasPermission = await hasLocationPermission();
 
-     if (!hasPermission) {
+    if (!hasPermission) {
       return;
     }
 
@@ -79,7 +79,6 @@ export const LocationProvider : React.FC = ({children}) => {
           lat: position.coords.latitude,
           lon: position.coords.longitude
         })
-        console.log(position);
       },
       (error) => {
         Alert.alert(`Code ${error.code}`, error.message);
@@ -102,11 +101,13 @@ export const LocationProvider : React.FC = ({children}) => {
   }
 
   useEffect(() => {
-
+    let isSubscribed = true;
     getLocation();
-  },[currentLocation.lat]);
 
-  return(
+    return () => { isSubscribed = false }
+  }, [currentLocation.lat]);
+
+  return (
     <LocationContext.Provider value={{
       currentLocation,
     }}>

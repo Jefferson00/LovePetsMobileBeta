@@ -106,7 +106,7 @@ const Profile: React.FC = () => {
         </ProfileButton>
 
         <ModalComponent
-          title="Deseja excluir seu anúncio?"
+          title="Deseja excluir seu conta?"
           type="confirmation"
           icon={() => (
             <Icon name="alert-circle" size={45} color='#BA1212' />
