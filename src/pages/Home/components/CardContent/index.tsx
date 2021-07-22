@@ -179,13 +179,13 @@ const CardContent: React.FC<CardContentProps> = ({ item }) => {
                 </TouchableOpacity>
               </UserInformation>
 
-              <Subtitle>
+              {/*<Subtitle>
                 Brasília-DF
-              </Subtitle>
+              </Subtitle>*/}
             </ContactContainer>
 
             <ActionsContainer>
-              <SharedContainer onPress={handleShare}>
+              <SharedContainer onPress={() => handleShare(item.id)}>
                 <Icon name="share-social" size={25} color="#12BABA" style={{ marginRight: 6 }} />
                 <Subtitle>Compartilhar</Subtitle>
               </SharedContainer>

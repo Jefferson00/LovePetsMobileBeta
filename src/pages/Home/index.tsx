@@ -101,6 +101,7 @@ const Home: React.FC = () => {
   }, [page, loadPets]);
 
   useEffect(() => {
+    let isSubscribed = true;
     setLoading(true);
     setPets([]);
     handleSetPage(1);
@@ -108,6 +109,7 @@ const Home: React.FC = () => {
     if (user) {
       loadFavs();
     }
+    return () => { isSubscribed = false }
   }, [currentLocation.lat, specieFilter, genderFilter, distance, refreshing]);
 
   useEffect(() => {

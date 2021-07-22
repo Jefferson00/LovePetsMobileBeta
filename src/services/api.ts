@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://192.168.1.74:3333',
+  baseURL: 'https://dry-crag-31377.herokuapp.com',
 });
 
 export default api;
