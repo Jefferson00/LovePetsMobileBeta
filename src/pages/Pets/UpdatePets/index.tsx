@@ -1,4 +1,11 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react';
+import { Alert, ActivityIndicator } from 'react-native';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { FormHandles } from '@unform/core';
+import { Form } from '@unform/mobile';
+import { usePets } from '../../../hooks/PetsContext';
+import { IPetsData, IPetImages, Age, Gender, Specie } from '../../../@types/Pets/IPetsData';
 
 import {
   Container,
@@ -10,17 +17,9 @@ import {
   ButtonWrapper,
 } from './styles';
 
-import { Alert, ActivityIndicator } from 'react-native';
-import api from '../../../services/api';
 import * as Yup from 'yup';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import api from '../../../services/api';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useNavigation, useRoute, RouteProp} from '@react-navigation/native';
-import { FormHandles } from '@unform/core';
-import { Form } from '@unform/mobile';
-
-
-
 import Button from '../../../components/Button';
 import TabMenu from '../../../components/TabMenu';
 import Header from '../../../components/Header';
@@ -30,10 +29,7 @@ import ImageContainer from '../components/ImageContainer';
 import SpecieContainer from '../components/SpecieContainer';
 import AgeContainer from '../components/AgeContainer';
 import LocationContainer from '../components/LocationContainer';
-
-import { IPetsData , IPetImages, Age, Gender, Specie} from '../../../@types/Pets/IPetsData';
 import ModalComponent from '../../../components/Modal';
-import { usePets } from '../../../hooks/PetsContext';
 import CameraModal from '../../../components/CameraModal';
 
 interface CreatePetFormData {
@@ -55,12 +51,12 @@ interface PetData {
 }
 
 type ParamRoute = {
-  UpdatePet:{
+  UpdatePet: {
     pet: IPetsData;
   };
 }
 
-const UpdatePet: React.FC= () => {
+const UpdatePet: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
   const navigation = useNavigation();
   const { loadMyPets } = usePets();
@@ -116,21 +112,21 @@ const UpdatePet: React.FC= () => {
     let newImages = [...images];
 
     imagesParm.map((image, index) => {
-      if(image.image_url){
+      if (image.image_url) {
         newImages[index].image_url = image.image_url;
         newImages[index].id = image.id;
       }
     });
 
     setImages(newImages);
-  },[route.params.pet.images]);
+  }, [route.params.pet.images]);
 
-  const selectLocation = useCallback((lat:string, lon:string) => {
+  const selectLocation = useCallback((lat: string, lon: string) => {
     setLatitude(lat);
     setLongitude(lon);
-  },[]);
+  }, []);
 
-  const handleConfirm = useCallback(async() => {
+  const handleConfirm = useCallback(async () => {
     setModalVisible(false);
   }, []);
 
@@ -192,7 +188,7 @@ const UpdatePet: React.FC= () => {
       }
 
     });
-  },[images]);
+  }, [images]);
 
   const handleUpdatePet = useCallback(async (data: CreatePetFormData) => {
     try {
@@ -260,7 +256,7 @@ const UpdatePet: React.FC= () => {
 
   const handleCancelCamera = useCallback(() => {
     setCameraModal(false);
-  },[]);
+  }, []);
 
   const handleCreateImages = async (petData: PetData) => {
     try {
@@ -277,14 +273,14 @@ const UpdatePet: React.FC= () => {
           });
           dataImage.append('pet_id', route.params.pet.id);
 
-          if (image.id){
+          if (image.id) {
             api.patch(`images/${image.id}`, dataImage).catch(() => {
               setModalTitle('Erro no upload da imagem');
               setModalSubtitle('Não foi possível atualizar a imagem, tente novamente.');
               setModalType('error');
               setModalVisible(true);
             });
-          }else{
+          } else {
             api.patch('images', dataImage).catch(() => {
               setModalTitle('Erro no upload da imagem');
               setModalSubtitle('Não foi possível cadastrar a imagem, tente novamente.');
@@ -304,7 +300,7 @@ const UpdatePet: React.FC= () => {
 
       setTimeout(() => {
         navigation.goBack();
-      },1000);
+      }, 1000);
     } catch (error) {
       setModalTitle('Erro na atualização');
       setModalSubtitle('Não foi possível atualizar o pet, tente novamente.');
@@ -422,42 +418,42 @@ const UpdatePet: React.FC= () => {
           </Form>
         </FormContainer>
         <CameraModal
-            onCameraModalCancel={handleCancelCamera}
-            onSelectGallery={() => handleSelectImageFromGallery(index)}
-            onSelectCamera={() => handleSelectImageFromCamera(index)}
-            visible={cameraModal}
-            transparent
-            animationType="slide"
+          onCameraModalCancel={handleCancelCamera}
+          onSelectGallery={() => handleSelectImageFromGallery(index)}
+          onSelectCamera={() => handleSelectImageFromCamera(index)}
+          visible={cameraModal}
+          transparent
+          animationType="slide"
         />
 
         <ModalComponent
-            title={modalTitle}
-            subtitle={modalSubtitle}
-            type={modalType}
-            icon={() => {
-              if(modalType === 'error' ){
-                return (<Icon name="alert-circle" size={45} color='#BA1212'/>)
-              }else if(modalType === 'success' ){
-                return (<Icon name="checkmark-circle" size={45} color='#12BABA'/>)
-              }else{
-                return (<Icon name="alert-circle" size={45} color='#BA1212'/>)
-              }
-            }}
-            transparent
-            visible={modalVisible}
-            handleConfirm={handleConfirm}
-            animationType="slide"
-         />
+          title={modalTitle}
+          subtitle={modalSubtitle}
+          type={modalType}
+          icon={() => {
+            if (modalType === 'error') {
+              return (<Icon name="alert-circle" size={45} color='#BA1212' />)
+            } else if (modalType === 'success') {
+              return (<Icon name="checkmark-circle" size={45} color='#12BABA' />)
+            } else {
+              return (<Icon name="alert-circle" size={45} color='#BA1212' />)
+            }
+          }}
+          transparent
+          visible={modalVisible}
+          handleConfirm={handleConfirm}
+          animationType="slide"
+        />
 
-          <ModalComponent
-            type={'loading'}
-            icon={() => (
-              <ActivityIndicator  size="large" color='#BA1212'/>
-            )}
-            transparent
-            visible={loading}
-            animationType="slide"
-         />
+        <ModalComponent
+          type={'loading'}
+          icon={() => (
+            <ActivityIndicator size="large" color='#BA1212' />
+          )}
+          transparent
+          visible={loading}
+          animationType="slide"
+        />
 
       </Container>
       <TabMenu />

@@ -2,8 +2,8 @@ import React from 'react';
 
 import { AuthProvider } from "./AuthContext";
 import { LocationProvider } from "./LocationContext";
-import {FilterProvider} from "./FilterContext";
-import {PetsProvider} from "./PetsContext";
+import { FilterProvider } from "./FilterContext";
+import { PetsProvider } from "./PetsContext";
 
 const AppProvider: React.FC = ({ children }) => (
   <LocationProvider>

@@ -1,17 +1,18 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { Image, ActivityIndicator, View } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
-import ModalIcon from 'react-native-vector-icons/Ionicons';
-import {useNavigation} from '@react-navigation/native';
-import * as Yup from 'yup';
-
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Form } from '@unform/mobile';
 import { FormHandles } from '@unform/core';
 
+import * as Yup from 'yup';
+import LinearGradient from 'react-native-linear-gradient';
+import ModalIcon from 'react-native-vector-icons/Ionicons';
+
+import api from '../../services/api';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import ModalComponent from '../../components/Modal';
+import getValidationErrors from '../../utils/getValidationErrors';
 
 import logoImg from '../../assets/logo.png';
 
@@ -22,16 +23,12 @@ import {
   FormContainer,
   FormTitle,
 } from './styles';
-import getValidationErrors from '../../utils/getValidationErrors';
-import api from '../../services/api';
-
 
 interface ForgotFormData {
   email: string;
 }
 
-const ForgotPassword: React.FC = () =>{
-  const navigation = useNavigation();
+const ForgotPassword: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -40,7 +37,7 @@ const ForgotPassword: React.FC = () =>{
   const [modalTitle, setModalTitle] = useState('');
   const [modalSubtitle, setModalSubtitle] = useState('');
 
-  const handleSendForgot = useCallback(async (data : ForgotFormData)=>{
+  const handleSendForgot = useCallback(async (data: ForgotFormData) => {
     setLoading(true);
     try {
       formRef.current?.setErrors({});
@@ -63,7 +60,7 @@ const ForgotPassword: React.FC = () =>{
       });
 
     } catch (error) {
-      if (error instanceof Yup.ValidationError){
+      if (error instanceof Yup.ValidationError) {
         const errors = getValidationErrors(error);
 
         formRef.current?.setErrors(errors);
@@ -77,14 +74,14 @@ const ForgotPassword: React.FC = () =>{
       setModalVisible(true);
       setLoading(false);
     }
-  },[]);
+  }, []);
 
-  const handleConfirm = useCallback(async() => {
+  const handleConfirm = useCallback(async () => {
     setModalVisible(false);
   }, []);
 
-  return(
-    <LinearGradient colors={['#F43434', '#970D0D']} style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+  return (
+    <LinearGradient colors={['#F43434', '#970D0D']} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <Container>
         <Image source={logoImg} />
 
@@ -101,51 +98,51 @@ const ForgotPassword: React.FC = () =>{
             scrollEnabled
             showsVerticalScrollIndicator={false}
           >
-          <FormTitle>
-            Recuperação de senha
-          </FormTitle>
+            <FormTitle>
+              Recuperação de senha
+            </FormTitle>
 
-          <Form ref={formRef} onSubmit={handleSendForgot}>
-            <Input
-              name="email"
-              icon="mail"
-              placeholder="e-mail"
-              autoCapitalize="none"
-              autoCorrect={false}
-              keyboardType="email-address"
-              returnKeyType="send"
-              onSubmitEditing={() =>{
+            <Form ref={formRef} onSubmit={handleSendForgot}>
+              <Input
+                name="email"
+                icon="mail"
+                placeholder="e-mail"
+                autoCapitalize="none"
+                autoCorrect={false}
+                keyboardType="email-address"
+                returnKeyType="send"
+                onSubmitEditing={() => {
+                  formRef.current?.submitForm();
+                }}
+              />
+
+              <Button borderColor="transparent" title="Enviar" onPress={() => {
                 formRef.current?.submitForm();
-              }}
-            />
-
-            <Button borderColor="transparent" title="Enviar" onPress={() => {
-              formRef.current?.submitForm();
-            }}>
-            </Button>
-          </Form>
-        </KeyboardAwareScrollView>
-        <ModalComponent
-              title={modalTitle}
-              subtitle={modalSubtitle}
-              type={modalType}
-              icon={() => {
-                if(modalType === 'error' ){
-                  return (<ModalIcon name="alert-circle" size={45} color='#BA1212'/>)
-                }else if(modalType === 'success' ){
-                  return (<ModalIcon name="checkmark-circle" size={45} color='#12BABA'/>)
-                }else{
-                  return (<ModalIcon name="alert-circle" size={45} color='#BA1212'/>)
-                }
-              }}
-              transparent
-              visible={modalVisible}
-              handleConfirm={handleConfirm}
-              animationType="slide"
+              }}>
+              </Button>
+            </Form>
+          </KeyboardAwareScrollView>
+          <ModalComponent
+            title={modalTitle}
+            subtitle={modalSubtitle}
+            type={modalType}
+            icon={() => {
+              if (modalType === 'error') {
+                return (<ModalIcon name="alert-circle" size={45} color='#BA1212' />)
+              } else if (modalType === 'success') {
+                return (<ModalIcon name="checkmark-circle" size={45} color='#12BABA' />)
+              } else {
+                return (<ModalIcon name="alert-circle" size={45} color='#BA1212' />)
+              }
+            }}
+            transparent
+            visible={modalVisible}
+            handleConfirm={handleConfirm}
+            animationType="slide"
           />
           {loading &&
-            <View style={{flex:1}}>
-              <ActivityIndicator size="large" color="#F43434"/>
+            <View style={{ flex: 1 }}>
+              <ActivityIndicator size="large" color="#F43434" />
             </View>
           }
         </FormContainer>

@@ -2,14 +2,15 @@ import React, { useCallback, useRef, useState } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Form } from '@unform/mobile';
 import { FormHandles } from '@unform/core';
+import { useNavigation } from '@react-navigation/core';
+import { TextInput, ActivityIndicator } from 'react-native';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { useAuth } from '../../hooks/AuthContext';
+
 import * as Yup from 'yup';
 import 'yup-phone';
 import getValidationErrors from '../../utils/getValidationErrors';
-import { useNavigation } from '@react-navigation/core';
-import { Alert, TextInput, ActivityIndicator } from 'react-native';
 import ModalIcon from 'react-native-vector-icons/Ionicons';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-import ImageEditor from "@react-native-community/image-editor";
 
 import Icon from 'react-native-vector-icons/Feather';
 
@@ -22,7 +23,6 @@ import {
 } from './styles';
 
 import TabMenu from '../../components/TabMenu';
-import { useAuth } from '../../hooks/AuthContext';
 import Header from '../../components/Header';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
@@ -32,17 +32,17 @@ import DefaultImg from '../../assets/default.png';
 import ModalComponent from '../../components/Modal';
 import CameraModal from '../../components/CameraModal';
 
-interface SignUpFormData{
-  name:string;
-  email:string;
-  old_password:string;
-  password:string;
-  confirmPassword:string;
-  phone:string;
+interface SignUpFormData {
+  name: string;
+  email: string;
+  old_password: string;
+  password: string;
+  confirmPassword: string;
+  phone: string;
 }
 
 const UpdateProfile: React.FC = () => {
-  const {user, updateUser} = useAuth();
+  const { user, updateUser } = useAuth();
 
   const navigation = useNavigation();
 
@@ -61,7 +61,7 @@ const UpdateProfile: React.FC = () => {
 
   const [cameraModal, setCameraModal] = useState(false);
 
-  const handleUpdateProfile = useCallback(async (data:SignUpFormData) => {
+  const handleUpdateProfile = useCallback(async (data: SignUpFormData) => {
     setLoading(true);
     try {
       formRef.current?.setErrors({});
@@ -70,12 +70,12 @@ const UpdateProfile: React.FC = () => {
         name: Yup.string().required('Nome é obrigatório!'),
         old_password: Yup.string(),
         password: Yup.string().when('old_password', {
-          is: (oldPass:string) => !!oldPass.length,
+          is: (oldPass: string) => !!oldPass.length,
           then: Yup.string().required('Campo obrigatório').min(6, 'Mínimo de 6 caracteres'),
           otherwise: Yup.string(),
         }),
         confirmPassword: Yup.string().when('old_password', {
-          is: (oldPass:string) => !!oldPass.length,
+          is: (oldPass: string) => !!oldPass.length,
           then: Yup.string().required('Campo obrigatório'),
           otherwise: Yup.string(),
         }).equals(
@@ -87,7 +87,7 @@ const UpdateProfile: React.FC = () => {
         abortEarly: false,
       });
 
-      const {name, phone, email, confirmPassword, old_password, password} = data;
+      const { name, phone, email, confirmPassword, old_password, password } = data;
 
       const formData = Object.assign({
         name,
@@ -97,9 +97,9 @@ const UpdateProfile: React.FC = () => {
         old_password,
         password,
         confirmPassword,
-      }: {});
+      } : {});
 
-      const response = await api.put('/profile', formData );
+      const response = await api.put('/profile', formData);
 
       updateUser(response.data);
 
@@ -111,9 +111,9 @@ const UpdateProfile: React.FC = () => {
 
       setTimeout(() => {
         navigation.goBack();
-      },1000);
+      }, 1000);
     } catch (error) {
-      if (error instanceof Yup.ValidationError){
+      if (error instanceof Yup.ValidationError) {
         const errors = getValidationErrors(error);
 
         formRef.current?.setErrors(errors);
@@ -133,7 +133,7 @@ const UpdateProfile: React.FC = () => {
       setModalVisible(true);
     }
     setLoading(false);
-  },[])
+  }, [])
 
   const handleUpdateAvatar = useCallback(() => {
     setCameraModal(true);
@@ -146,11 +146,11 @@ const UpdateProfile: React.FC = () => {
       maxHeight: 625,
       maxWidth: 625,
     }, response => {
-      if (response.didCancel){
+      if (response.didCancel) {
         setCameraModal(false);
         return;
       }
-      if (response.errorCode){
+      if (response.errorCode) {
         setModalTitle('Erro na atualização');
         setModalSubtitle('Ocorreu um erro na atualização do seu avatar, tente novamente.');
         setModalType('error');
@@ -170,7 +170,7 @@ const UpdateProfile: React.FC = () => {
 
       api.patch('users/avatar', data).then(apiResponse => {
         updateUser(apiResponse.data);
-      }).catch(() =>{
+      }).catch(() => {
         setModalTitle('Erro na atualização');
         setModalSubtitle('Não foi possível atualizar seu avatar, tente novamente.');
         setModalType('error');
@@ -185,11 +185,11 @@ const UpdateProfile: React.FC = () => {
       maxHeight: 625,
       maxWidth: 625,
     }, response => {
-      if (response.didCancel){
+      if (response.didCancel) {
         setCameraModal(false);
         return;
       }
-      if (response.errorCode){
+      if (response.errorCode) {
         setModalTitle('Erro na atualização');
         setModalSubtitle('Ocorreu um erro na atualização do seu avatar, tente novamente.');
         setModalType('error');
@@ -209,7 +209,7 @@ const UpdateProfile: React.FC = () => {
 
       api.patch('users/avatar', data).then(apiResponse => {
         updateUser(apiResponse.data);
-      }).catch(() =>{
+      }).catch(() => {
         setModalTitle('Erro na atualização');
         setModalSubtitle('Não foi possível atualizar seu avatar, tente novamente.');
         setModalType('error');
@@ -220,15 +220,15 @@ const UpdateProfile: React.FC = () => {
 
   const handleCancelCamera = useCallback(() => {
     setCameraModal(false);
-  },[]);
+  }, []);
 
-  const handleConfirm = useCallback(async() => {
+  const handleConfirm = useCallback(async () => {
     setModalVisible(false);
   }, []);
 
-  return(
+  return (
     <>
-      <Header title="Perfil"/>
+      <Header title="Perfil" />
       <Container>
 
         <UpdateProfileContainer>
@@ -236,24 +236,24 @@ const UpdateProfile: React.FC = () => {
             resetScrollToCoords={{ x: 0, y: 0 }}
             scrollEnabled
             showsVerticalScrollIndicator={false}
-            style={{width: '100%'}}
-            contentContainerStyle={{alignItems:'center'}}
+            style={{ width: '100%' }}
+            contentContainerStyle={{ alignItems: 'center' }}
           >
             <ImageContainer>
               {user.avatar_url ?
-                <UserAvatar source={{uri: user.avatar_url}} />
+                <UserAvatar source={{ uri: user.avatar_url }} />
                 :
                 <UserAvatar source={DefaultImg} />
               }
-                <UpdateAvatarButton onPress={handleUpdateAvatar}>
-                  <Icon name="camera" size={20} color="#FFFFFF"/>
-                </UpdateAvatarButton>
+              <UpdateAvatarButton onPress={handleUpdateAvatar}>
+                <Icon name="camera" size={20} color="#FFFFFF" />
+              </UpdateAvatarButton>
             </ImageContainer>
 
             <Form
               ref={formRef}
               onSubmit={handleUpdateProfile}
-              style={{marginTop: 33}}
+              style={{ marginTop: 33 }}
               initialData={{
                 email: user.email,
                 name: user.name,
@@ -268,7 +268,7 @@ const UpdateProfile: React.FC = () => {
                 autoCorrect={false}
                 keyboardType="email-address"
                 returnKeyType="next"
-                onSubmitEditing={() =>{
+                onSubmitEditing={() => {
                   inputNameRef.current?.focus();
                 }}
               />
@@ -279,20 +279,20 @@ const UpdateProfile: React.FC = () => {
                 placeholder="nome"
                 autoCapitalize="words"
                 returnKeyType="next"
-                onSubmitEditing={() =>{
+                onSubmitEditing={() => {
                   inputPhoneRef.current?.focus();
                 }}
               />
               <Input
-                  ref={inputPhoneRef}
-                  name="phone"
-                  icon="phone"
-                  placeholder="whatsapp"
-                  keyboardType="phone-pad"
-                  returnKeyType="next"
-                  onSubmitEditing={() =>{
-                    inputOldPasswordRef.current?.focus();
-                  }}
+                ref={inputPhoneRef}
+                name="phone"
+                icon="phone"
+                placeholder="whatsapp"
+                keyboardType="phone-pad"
+                returnKeyType="next"
+                onSubmitEditing={() => {
+                  inputOldPasswordRef.current?.focus();
+                }}
               />
               <Input
                 ref={inputOldPasswordRef}
@@ -301,7 +301,7 @@ const UpdateProfile: React.FC = () => {
                 placeholder="senha atual"
                 secureTextEntry
                 returnKeyType="next"
-                onSubmitEditing={() =>{
+                onSubmitEditing={() => {
                   inputPasswordRef.current?.focus();
                 }}
               />
@@ -312,7 +312,7 @@ const UpdateProfile: React.FC = () => {
                 placeholder="nova senha"
                 secureTextEntry
                 returnKeyType="next"
-                onSubmitEditing={() =>{
+                onSubmitEditing={() => {
                   inputConfirmPasswordRef.current?.focus();
                 }}
               />
@@ -323,14 +323,14 @@ const UpdateProfile: React.FC = () => {
                 placeholder="confirmar nova senha"
                 secureTextEntry
                 returnKeyType="send"
-                onSubmitEditing={() =>{
+                onSubmitEditing={() => {
                   formRef.current?.submitForm();
                 }}
               />
 
               <Button title="Salvar" onPress={() => {
                 formRef.current?.submitForm();
-              }}/>
+              }} />
             </Form>
           </KeyboardAwareScrollView>
 
@@ -343,36 +343,36 @@ const UpdateProfile: React.FC = () => {
             animationType="slide"
           />
           <ModalComponent
-              title={modalTitle}
-              subtitle={modalSubtitle}
-              type={modalType}
-              icon={() => {
-                if(modalType === 'error' ){
-                  return (<ModalIcon name="alert-circle" size={45} color='#BA1212'/>)
-                }else if(modalType === 'success' ){
-                  return (<ModalIcon name="checkmark-circle" size={45} color='#12BABA'/>)
-                }else{
-                  return (<ModalIcon name="alert-circle" size={45} color='#BA1212'/>)
-                }
-              }}
-              transparent
-              visible={modalVisible}
-              handleConfirm={handleConfirm}
-              animationType="slide"
+            title={modalTitle}
+            subtitle={modalSubtitle}
+            type={modalType}
+            icon={() => {
+              if (modalType === 'error') {
+                return (<ModalIcon name="alert-circle" size={45} color='#BA1212' />)
+              } else if (modalType === 'success') {
+                return (<ModalIcon name="checkmark-circle" size={45} color='#12BABA' />)
+              } else {
+                return (<ModalIcon name="alert-circle" size={45} color='#BA1212' />)
+              }
+            }}
+            transparent
+            visible={modalVisible}
+            handleConfirm={handleConfirm}
+            animationType="slide"
           />
 
           <ModalComponent
-              type={'loading'}
-              icon={() => (
-                <ActivityIndicator  size="large" color='#BA1212'/>
-              )}
-              transparent
-              visible={loading}
-              animationType="slide"
+            type={'loading'}
+            icon={() => (
+              <ActivityIndicator size="large" color='#BA1212' />
+            )}
+            transparent
+            visible={loading}
+            animationType="slide"
           />
         </UpdateProfileContainer>
       </Container>
-      <TabMenu/>
+      <TabMenu />
     </>
   )
 }

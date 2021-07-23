@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState, useImperativeHandle, forwardRef, } from 'react';
+import React from 'react';
 import { ModalBaseProps, Modal } from 'react-native';
-import Icon from 'react-native-vector-icons/Feather';
 
 import {
   Container,
@@ -16,7 +15,7 @@ import {
 
 interface ModalProps extends ModalBaseProps {
   title?: string;
-  subtitle?:string;
+  subtitle?: string;
   icon: React.FC;
   type: 'success' | 'error' | 'info' | 'confirmation' | 'loading';
   handleConfirm?: () => Promise<void>;
@@ -25,16 +24,16 @@ interface ModalProps extends ModalBaseProps {
 
 const ModalComponent: React.FC<ModalProps> = ({
   icon: Icon, title, type, subtitle, handleCancel, handleConfirm, ...rest
-}) =>{
+}) => {
 
-  return(
+  return (
     <Container>
-        <Modal
-          {...rest}
-         >
+      <Modal
+        {...rest}
+      >
         <ContainerContent>
           <ModalContent>
-            <Icon/>
+            <Icon />
             {title && (
               <Title
                 type={type}
@@ -52,16 +51,16 @@ const ModalComponent: React.FC<ModalProps> = ({
             <ButtonsContainer>
               {type === 'confirmation' ?
                 <>
-                <ButtonOk onPress={handleConfirm}>
-                  <TextButton type="ok">
-                    OK
-                  </TextButton>
-                </ButtonOk>
-                <ButtonCancel onPress={handleCancel}>
-                  <TextButton type="cancel">
-                    Cancel
-                  </TextButton>
-                </ButtonCancel>
+                  <ButtonOk onPress={handleConfirm}>
+                    <TextButton type="ok">
+                      OK
+                    </TextButton>
+                  </ButtonOk>
+                  <ButtonCancel onPress={handleCancel}>
+                    <TextButton type="cancel">
+                      Cancel
+                    </TextButton>
+                  </ButtonCancel>
                 </>
                 : type !== 'loading' &&
                 <ButtonOk onPress={handleConfirm}>

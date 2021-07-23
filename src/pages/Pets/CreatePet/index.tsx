@@ -1,4 +1,10 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react';
+import { Alert, ActivityIndicator } from 'react-native';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { useNavigation } from '@react-navigation/native';
+import { useLocation } from '../../../hooks/LocationContext';
+import { FormHandles } from '@unform/core';
+import { Form } from '@unform/mobile';
 
 import {
   Container,
@@ -10,17 +16,9 @@ import {
   ButtonWrapper,
 } from './styles';
 
-import { Alert, ActivityIndicator } from 'react-native';
-import api from '../../../services/api';
 import * as Yup from 'yup';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import api from '../../../services/api';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
-import { useLocation } from '../../../hooks/LocationContext';
-import { FormHandles } from '@unform/core';
-import { Form } from '@unform/mobile';
-
-
 
 import Button from '../../../components/Button';
 import TabMenu from '../../../components/TabMenu';
@@ -32,7 +30,6 @@ import SpecieContainer from '../components/SpecieContainer';
 import AgeContainer from '../components/AgeContainer';
 import LocationContainer from '../components/LocationContainer';
 import ModalComponent from '../../../components/Modal';
-import Geocoder from '../../../libs/Geocoder';
 import CameraModal from '../../../components/CameraModal';
 
 
@@ -120,12 +117,6 @@ const CreatePet: React.FC = () => {
     if (currentLocation.lat && currentLocation.lon) {
       setLatitude(currentLocation.lat);
       setLongitude(currentLocation.lon);
-
-      /*Geocoder.from(currentLocation.lat, currentLocation.lon)
-        .then(result => {
-          let address = result.results[0].address_components[0];
-          console.log(address);
-        })*/
     }
   }, [currentLocation.lat]);
 

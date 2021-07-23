@@ -1,24 +1,13 @@
-import React from 'react';
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { usePets } from './PetsContext';
+import { Settings, LoginManager, AccessToken } from 'react-native-fbsdk-next';
+
 import api from '../services/api';
 import AsyncStorage from '@react-native-community/async-storage';
-
-import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import auth from '@react-native-firebase/auth';
 import GoogleSignin from '../libs/GoogleSignin';
 
-import { Settings, LoginManager, AccessToken } from 'react-native-fbsdk-next';
-import { usePets } from './PetsContext';
-
 Settings.initializeSDK();
-
-
-/*interface AuthResponseProps extends firebase.auth.AuthCredential{
-    accessToken:string;
-}*/
-
-/*interface ResponseFirebaseProps extends firebase.auth.UserCredential{
-    credential: AuthResponseProps | null;
-}*/
 
 interface User {
   id: string;
@@ -54,7 +43,6 @@ interface AuthContextData {
   signIn: (credentials: SignInCredentials) => Promise<void>;
   signOut: () => void;
   updateUser: (user: User) => void;
-  handleToForgotPassword: () => void;
   signInGoogle: () => void;
   signInFacebook: () => void;
 }
@@ -67,8 +55,6 @@ export const AuthProvider: React.FC = ({ children }) => {
   const [authData, setAuthData] = useState<AuthState>({} as AuthState);
   const [loading, setLoading] = useState(true);
   const [socialAuthenticationError, setSocialAuthenticationError] = useState(false);
-
-  //const navigation = useNavigation();
 
   useEffect(() => {
     let isSubscribed = true;
@@ -91,19 +77,13 @@ export const AuthProvider: React.FC = ({ children }) => {
 
     loadStorageData();
     return () => { isSubscribed = false }
-  }, [])
-
-  /*useEffect(() =>{
-      if(authData.user !== undefined || authData.user === null) {
-          setLoading(false);
-      }
-  },[authData.user])*/
+  }, []);
 
   const signIn = useCallback(async ({ email, password }) => {
     const response = await api.post('sessions', {
       email,
       password,
-    })
+    });
 
     const { token, user } = response.data;
 
@@ -117,7 +97,7 @@ export const AuthProvider: React.FC = ({ children }) => {
     setAuthData({ token, user });
 
     return user;
-  }, [])
+  }, []);
 
   const signOut = useCallback(async () => {
     setLoading(true);
@@ -142,17 +122,12 @@ export const AuthProvider: React.FC = ({ children }) => {
     [setAuthData, authData.token],
   );
 
-  const handleToForgotPassword = useCallback(() => {
-    //setFormState('forgot');
-  }, [])
-
   const createAndUpdateUser = useCallback(async (data: SignUpData) => {
     setLoading(true);
-    console.log(data)
     try {
       await api.post('/users', data);
     } catch (error) {
-      console.log('--------------- ' + error)
+      console.log(error)
     }
     try {
       const user = await signIn({ email: data.email, password: data.password })
@@ -170,10 +145,9 @@ export const AuthProvider: React.FC = ({ children }) => {
       }
     } catch (error) {
       console.log('_____ ' + error)
-      //setSocialAuthenticationError(error.message);
     }
     setLoading(false);
-  }, [signIn])
+  }, [signIn]);
 
   const signInGoogle = useCallback(async () => {
     setSocialAuthenticationError(false);
@@ -191,7 +165,7 @@ export const AuthProvider: React.FC = ({ children }) => {
           name: user.displayName,
           email: user.email,
           phone: user.phoneNumber ? user.phoneNumber : '',
-          password: user.uid, //verificar se é seguro
+          password: user.uid,
           avatar: user.photoURL,
         }
         createAndUpdateUser(data);
@@ -222,8 +196,6 @@ export const AuthProvider: React.FC = ({ children }) => {
 
       const userCredential = await auth().signInWithCredential(facebookCredential);
 
-      console.log(userCredential.user);
-
       const user = userCredential.user;
       const token = facebookCredential.token;
 
@@ -232,7 +204,7 @@ export const AuthProvider: React.FC = ({ children }) => {
           name: user.displayName,
           email: user.email,
           phone: user.phoneNumber ? user.phoneNumber : '',
-          password: user.uid, //verificar se é seguro
+          password: user.uid,
           avatar: user.photoURL + `?access_token=${token}`,
         }
         createAndUpdateUser(data);
@@ -250,7 +222,6 @@ export const AuthProvider: React.FC = ({ children }) => {
       signIn,
       signOut,
       updateUser,
-      handleToForgotPassword,
       signInGoogle,
       signInFacebook,
     }}>

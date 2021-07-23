@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState, useImperativeHandle, forwardRef, } from 'react';
+import React from 'react';
 import { ModalBaseProps, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -20,40 +20,40 @@ interface ModalProps extends ModalBaseProps {
 }
 
 const CameraModal: React.FC<ModalProps> = ({
-    onCameraModalCancel,
-    onSelectGallery,
-    onSelectCamera,
-   ...rest
-}) =>{
+  onCameraModalCancel,
+  onSelectGallery,
+  onSelectCamera,
+  ...rest
+}) => {
 
-  return(
+  return (
     <Container>
-        <Modal
-          {...rest}
-         >
+      <Modal
+        {...rest}
+      >
         <ContainerContent>
           <ModalContent>
-          <Title> Escolha uma opção </Title>
-          <ButtonsContainer>
-            <Button onPress={onSelectCamera}>
-              <Icon name="camera" size={65} color="#12BABA"/>
-              <TextButton type="ok">
+            <Title> Escolha uma opção </Title>
+            <ButtonsContainer>
+              <Button onPress={onSelectCamera}>
+                <Icon name="camera" size={65} color="#12BABA" />
+                <TextButton type="ok">
                   Camera
-              </TextButton>
-            </Button>
-            <Button onPress={onSelectGallery}>
-              <Icon name="folder-open" size={65} color="#12BABA"/>
-              <TextButton type="ok">
+                </TextButton>
+              </Button>
+              <Button onPress={onSelectGallery}>
+                <Icon name="folder-open" size={65} color="#12BABA" />
+                <TextButton type="ok">
                   Galeria
-              </TextButton>
-            </Button>
-          </ButtonsContainer>
+                </TextButton>
+              </Button>
+            </ButtonsContainer>
 
-          <ButtonCancel onPress={onCameraModalCancel}>
-            <TextButton type="cancel">
-              Cancelar
-            </TextButton>
-          </ButtonCancel>
+            <ButtonCancel onPress={onCameraModalCancel}>
+              <TextButton type="cancel">
+                Cancelar
+              </TextButton>
+            </ButtonCancel>
           </ModalContent>
         </ContainerContent>
       </Modal>

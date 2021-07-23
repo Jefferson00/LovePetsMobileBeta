@@ -1,5 +1,11 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { Animated, TouchableOpacity } from 'react-native';
+import { useFilter } from '../../hooks/FilterContext';
+
+import Icon from 'react-native-vector-icons/Feather';
+import GenderIcon from 'react-native-vector-icons/Ionicons';
+import PetIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import Slider from '@react-native-community/slider';
 
 import {
   Container,
@@ -15,11 +21,6 @@ import {
   RadiusContainer,
 } from './styles';
 
-import Icon from 'react-native-vector-icons/Feather';
-import GenderIcon from 'react-native-vector-icons/Ionicons';
-import PetIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Slider from '@react-native-community/slider';
-import { useFilter } from '../../hooks/FilterContext';
 
 const FilterMenu: React.FC = () => {
   const {

@@ -1,21 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, Dimensions, TouchableOpacity } from 'react-native';
-
-import Icon from 'react-native-vector-icons/Ionicons';
-
 import { usePets } from '../../../hooks/PetsContext';
 import { useLocation } from '../../../hooks/LocationContext';
+import { IPetsData, IPetImages } from '../../../@types/Pets/IPetsData';
+
+import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../components/Header';
 import TabMenu from '../../../components/TabMenu';
-
 import getDistanceLocation from '../../../utils/getDistanceLocation';
 import getDistanceTime from '../../../utils/getDistanceTime';
 import handleContactWhatsapp from '../../../utils/handleContactWhatsapp';
 import handleShare from '../../../utils/handleShare';
 
 import DefaultImg from '../../../assets/default.png';
-
-import { IPetsData, IPetImages } from '../../../@types/Pets/IPetsData';
 
 import {
   Container,

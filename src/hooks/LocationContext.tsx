@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import {
   Alert,
   PermissionsAndroid,
@@ -26,7 +26,6 @@ export const LocationProvider: React.FC = ({ children }) => {
 
   const hasLocationPermission = async () => {
     if (Platform.OS === 'ios') {
-      //const hasPermission = await hasPermissionIOS();
       return true;
     }
 

@@ -1,7 +1,20 @@
 import React, { useRef, useCallback, useState } from 'react';
-import { Animated, TouchableOpacity, ActivityIndicator, Alert, Modal, TouchableWithoutFeedback } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useAuth } from '../../../../hooks/AuthContext';
+import { usePets } from '../../../..//hooks/PetsContext';
+import { useLocation } from '../../../..//hooks/LocationContext';
+import { IPetsData } from '../../../../@types/Pets/IPetsData';
+import { useNavigation } from '@react-navigation/native';
+import { RadioButton } from 'react-native-paper';
 
+import {
+  Animated,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+  Modal,
+  TouchableWithoutFeedback
+} from 'react-native';
 
 import {
   ContentContainer,
@@ -32,45 +45,33 @@ import {
   ReportSubmitText,
 } from './styles';
 
-import { useAuth } from '../../../../hooks/AuthContext';
-import { usePets } from '../../../..//hooks/PetsContext';
-import { useLocation } from '../../../..//hooks/LocationContext';
+
 import api from '../../../../services/api';
-import { RadioButton } from 'react-native-paper';
 
 import getDistanceLocation from '../../../../utils/getDistanceLocation';
 import getDistanceTime from '../../../../utils/getDistanceTime';
 import handleContactWhatsapp from '../../../../utils/handleContactWhatsapp';
 import handleShare from '../../../../utils/handleShare';
 
-import { IPetsData } from '../../../../@types/Pets/IPetsData';
-
 import DefaultImg from '../../../../assets/default.png';
-import { useNavigation } from '@react-navigation/native';
-import ModalComponent from '../../../../components/Modal';
 
 interface CardContentProps {
   item: IPetsData;
 }
 
-type FormData = {
-  denuncia: string;
-};
-
 const CardContent: React.FC<CardContentProps> = ({ item }) => {
   const navigation = useNavigation();
-  const [checkedOption, setCheckedOption] = useState('');
-
-  const [reportSended, setReportSended] = useState(false);
-  const [modalType, setModalType] = useState<'success' | 'error' | 'info' | 'confirmation'>('error');
-  const [modalTitle, setModalTitle] = useState('');
-  const [modalSubtitle, setModalSubtitle] = useState('');
-
   const { favPets, loadFavs } = usePets();
   const { user } = useAuth();
   const { currentLocation } = useLocation();
+
+  const cardContentAnimation = useRef(new Animated.Value(53)).current;
+
+  const [checkedOption, setCheckedOption] = useState('');
+  const [reportSended, setReportSended] = useState(false);
   const [loadingFavClicked, setLoadingFavClicked] = useState(false);
   const [reportModalIsOpen, setReportModalIsOpen] = useState(false);
+  const [showCardContent, setShowCardContent] = useState(false);
 
   const reportRadioOptions = [
     { id: 'spam', value: 'spam', label: 'É spam' },
@@ -80,10 +81,6 @@ const CardContent: React.FC<CardContentProps> = ({ item }) => {
     { id: 'golpe ou fraude', value: 'golpe ou fraude', label: 'Golpe ou fraude' },
     { id: 'informação falsa', value: 'informação falsa', label: 'Informação falsa' },
   ]
-
-  const cardContentAnimation = useRef(new Animated.Value(53)).current;
-
-  const [showCardContent, setShowCardContent] = useState(false);
 
   const handleCreateFav = useCallback(async (pets_id: string) => {
     if (user) {
@@ -286,8 +283,6 @@ const CardContent: React.FC<CardContentProps> = ({ item }) => {
           </ContainerContent>
         </TouchableWithoutFeedback>
       </Modal>
-
-
     </>
   )
 }

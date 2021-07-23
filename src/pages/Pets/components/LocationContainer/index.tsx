@@ -12,16 +12,13 @@ import {
 import MarkerImg from '../../../../assets/marker.png';
 import { PROVIDER_GOOGLE, Marker, Callout } from 'react-native-maps';
 
-import Input from '../../../../components/Input';
-import { useLocation } from '../../../../hooks/LocationContext';
-
 interface LocationContainerProps {
   latitude: number;
   longitude: number;
-  onSelectLocation: (lat:string, lon:string) => void;
+  onSelectLocation: (lat: string, lon: string) => void;
 }
 
-const LocationContainer: React.FC<LocationContainerProps> = ({ latitude, longitude, onSelectLocation}) => {
+const LocationContainer: React.FC<LocationContainerProps> = ({ latitude, longitude, onSelectLocation }) => {
 
   return (
     <Container>

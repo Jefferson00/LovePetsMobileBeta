@@ -1,9 +1,10 @@
+import React, { useCallback, useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react';
 import { useField } from '@unform/core';
-import React, { useCallback, useEffect, useRef, useState, useImperativeHandle, forwardRef, } from 'react';
 import { TextInputProps } from 'react-native';
+
 import Icon from 'react-native-vector-icons/Feather';
 
-import {Container, InputText, ErrorContainer, TextError} from './styles';
+import { Container, InputText, ErrorContainer, TextError } from './styles';
 
 interface InputProps extends TextInputProps {
   name: string;
@@ -18,10 +19,10 @@ interface InputRef {
   focus(): void;
 }
 
-const Input: React.ForwardRefRenderFunction<InputRef, InputProps> = ({name, icon, ...rest}, ref) =>{
-  const {registerField, defaultValue = '', fieldName, error} = useField(name);
+const Input: React.ForwardRefRenderFunction<InputRef, InputProps> = ({ name, icon, ...rest }, ref) => {
+  const { registerField, defaultValue = '', fieldName, error } = useField(name);
   const inputElementRef = useRef<any>(null);
-  const inputValueRef = useRef<InputValueReference>({value: defaultValue});
+  const inputValueRef = useRef<InputValueReference>({ value: defaultValue });
 
   const [isFocused, setIsFocused] = useState(false);
   const [isFilled, setIsFilled] = useState(false);
@@ -48,47 +49,39 @@ const Input: React.ForwardRefRenderFunction<InputRef, InputProps> = ({name, icon
       name: fieldName,
       ref: inputValueRef.current,
       path: 'value',
-      // setValue(ref: any, value) {
-      //   inputValueRef.current.value = value;
-      //   inputElementRef.current.setNativeProps({ text: value });
-      // },
-      // clearValue() {
-      //   inputValueRef.current.value = '';
-      //   inputElementRef.current.clear();
-      // },
     })
   }, [fieldName, registerField]);
 
-  useEffect(() =>{
+  useEffect(() => {
     setIsErrored(!!error)
-  },[error, isErrored]);
+  }, [error, isErrored]);
 
-  return(
-  <Container isFocused={isFocused} isErrored={!!error}>
-    <Icon
-      name={icon}
-      size={20}
-      color={isFocused || isFilled ? '#12BABA' : '#C4C4C4'}
-    />
-    <InputText
-      ref={inputElementRef}
-      onFocus={handleInputFocus}
-      onBlur={handleInputBlur}
-      defaultValue={defaultValue}
-      onChangeText={(value) => {
-        inputValueRef.current.value = value;
-      }}
-      {...rest}
-    />
-    {error && (
-      <ErrorContainer>
+  return (
+    <Container isFocused={isFocused} isErrored={!!error}>
+      <Icon
+        name={icon}
+        size={20}
+        color={isFocused || isFilled ? '#12BABA' : '#C4C4C4'}
+      />
+      <InputText
+        ref={inputElementRef}
+        onFocus={handleInputFocus}
+        onBlur={handleInputBlur}
+        defaultValue={defaultValue}
+        onChangeText={(value) => {
+          inputValueRef.current.value = value;
+        }}
+        {...rest}
+      />
+      {error && (
+        <ErrorContainer>
           <TextError isVisible={!!error}>
             {error}
           </TextError>
-        <Icon name="alert-circle" size={20} color="#d53030"/>
-      </ErrorContainer>
-    )}
-  </Container>
+          <Icon name="alert-circle" size={20} color="#d53030" />
+        </ErrorContainer>
+      )}
+    </Container>
   )
 }
 
