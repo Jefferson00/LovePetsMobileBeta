@@ -28,24 +28,24 @@ Love pets: amor aos animais, é um projeto que tem como ideia conectar pessoas q
 
 ## 🚀 Tecnologias
 
-- TypeScript
-- React Native
-- Styled Components
-- Firebase
+- [TypeScript](https://www.typescriptlang.org/)
+- [React Native](https://reactnative.dev/)
+- [Styled Components](https://www.styled-components.com/)
+- [Firebase](https://firebase.google.com/)
 
 ## 🚀 Features
 
-- O usuário poderá se cadastrar ou efetuar o login social com o google ou facebook.
+- [x] O usuário poderá se cadastrar ou efetuar o login social com o google ou facebook.
 
-- O usuário terá acesso aos anúncios de adoção próximo ao local onde ele está.
+- [x] O usuário terá acesso aos anúncios de adoção próximo ao local onde ele está.
 
-- O usuário poderá filtrar por especie, gênero e distância de alcance dos anúncios.
+- [x] O usuário poderá filtrar por especie, gênero e distância de alcance dos anúncios.
 
-- O usuário logado poderá, salvar anúncios como favoritos, cadastrar, aditar e excluir anúncios.
+- [x] O usuário logado poderá, salvar anúncios como favoritos, cadastrar, aditar e excluir anúncios criado por ele.
 
-- O usuário poderá compartilhar e denunciar o anúncio, assim como entrar em contato com o responsável pelo anúncio via whatsapp.
+- [x] O usuário poderá compartilhar e denunciar o anúncio, assim como entrar em contato com o responsável pelo anúncio via whatsapp.
 
-- O usuário também poderá alterar informações do seu perfil e excluir sua conta.
+- [x] O usuário também poderá alterar informações do seu perfil e excluir sua conta.
 
 
 ## ℹ️ How To Use
