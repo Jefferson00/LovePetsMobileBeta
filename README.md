@@ -1,7 +1,14 @@
-# Love Pets: Amor aos animais
-<h2 align="center"> 
- Aplicação para conectar pessoas que desejam doar e ou adotar pets 
+<h3 align="center">
+  <img alt="Lovepets" title="Lovepets" src=".github/logo.svg" height="100px" width="100px"/>
+</h3>
+
+<h2 align="center">
+ Love Pets: amor aos animais 
 </h2>
+
+<h3 align="center">
+  Aplicação para conectar pessoas que desejam doar e ou adotar pets
+</h3>
 
 <p align="center">
   <img alt="Version" src="https://img.shields.io/badge/version-1.0-brightgreen">
