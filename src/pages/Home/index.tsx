@@ -11,7 +11,7 @@ import {
 
 import TabMenu from '../../components/TabMenu';
 import FilterMenu from '../../components/FilterMenu';
-import CardContent from './components/CardContent';
+import CardContent from '../../components/CardContent';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 
@@ -42,26 +42,30 @@ const Home: React.FC = () => {
 
 
   async function loadPets() {
-    if (currentLocation.lat && currentLocation.lon) {
-      const response = await api.get('/pets', {
-        params: {
-          location_lat: currentLocation.lat,
-          location_lon: currentLocation.lon,
-          distance: distance,
-          species: specieFilter,
-          gender: genderFilter,
-          limit: 5,
-          skip: page,
-        },
-      });
-      petsArr = response.data;
-      petsArr = await setPetImages(petsArr);
+    try {
+      if (currentLocation.lat && currentLocation.lon) {
+        const response = await api.get('/pets', {
+          params: {
+            location_lat: currentLocation.lat,
+            location_lon: currentLocation.lon,
+            distance: distance,
+            species: specieFilter,
+            gender: genderFilter,
+            limit: 5,
+            skip: page,
+          },
+        });
+        petsArr = response.data;
+        petsArr = await setPetImages(petsArr);
 
-      if (page > 1) {
-        setPets([...pets, ...petsArr]);
-      } else {
-        setPets(petsArr);
+        if (page > 1) {
+          setPets([...pets, ...petsArr]);
+        } else {
+          setPets(petsArr);
+        }
       }
+    } catch (error) {
+
     }
   }
 
@@ -150,7 +154,7 @@ const Home: React.FC = () => {
                           style={{ width: windowWidth }}
                         />
                         :
-                        <></>
+                        <PetImage source={PetImg} />
                     )}
                     horizontal
                     showsHorizontalScrollIndicator={false}

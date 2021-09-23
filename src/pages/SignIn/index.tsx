@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { ActivityIndicator, Image, TextInput } from 'react-native';
+import { ActivityIndicator, Image, TextInput, ScrollView } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Feather';
 import ModalIcon from 'react-native-vector-icons/Ionicons';
@@ -28,6 +28,7 @@ import {
   LinkSignUpContainer,
   LinkSignUpText,
   FormTitle,
+  Logo,
 } from './styles';
 import getValidationErrors from '../../utils/getValidationErrors';
 import { useAuth } from '../../hooks/AuthContext';
@@ -103,9 +104,10 @@ const SignIn: React.FC = () => {
   }, [socialAuthenticationError])
 
   return (
-    <LinearGradient colors={['#F43434', '#970D0D']} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+    <LinearGradient colors={['#F43434', '#970D0D']} style={{ flex: 1, alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
+
       <Container>
-        <Image source={logoImg} />
+        <Logo source={logoImg} />
 
         <Title>
           Love Pets
@@ -191,6 +193,7 @@ const SignIn: React.FC = () => {
               <Image source={facebookIcon} style={{ marginRight: 16 }} />
             </Button>
           </KeyboardAwareScrollView>
+
           <ModalComponent
             title={modalTitle}
             subtitle={modalSubtitle}
@@ -221,6 +224,7 @@ const SignIn: React.FC = () => {
           />
         </FormContainer>
       </Container>
+
     </LinearGradient>
   );
 }

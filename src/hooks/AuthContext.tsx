@@ -69,6 +69,7 @@ export const AuthProvider: React.FC = ({ children }) => {
 
         setAuthData({ token: token[1], user: JSON.parse(user[1]) })
       } else {
+        api.defaults.headers.authorization = null;
         setAuthData({} as AuthState);
       }
 
@@ -80,23 +81,27 @@ export const AuthProvider: React.FC = ({ children }) => {
   }, []);
 
   const signIn = useCallback(async ({ email, password }) => {
-    const response = await api.post('sessions', {
-      email,
-      password,
-    });
+    try {
+      const response = await api.post('sessions', {
+        email,
+        password,
+      });
 
-    const { token, user } = response.data;
+      const { token, user } = response.data;
 
-    await AsyncStorage.multiSet([
-      ['@LovePetsBeta:token', token],
-      ['@LovePetsBeta:user', JSON.stringify(user)]
-    ]);
+      await AsyncStorage.multiSet([
+        ['@LovePetsBeta:token', token],
+        ['@LovePetsBeta:user', JSON.stringify(user)]
+      ]);
 
-    api.defaults.headers.authorization = `Bearer ${token}`;
+      api.defaults.headers.authorization = `Bearer ${token}`;
 
-    setAuthData({ token, user });
+      setAuthData({ token, user });
 
-    return user;
+      return user;
+    } catch (error) {
+      console.log(error)
+    }
   }, []);
 
   const signOut = useCallback(async () => {

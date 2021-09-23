@@ -6,6 +6,7 @@ export const Container = styled.View`
   align-items: center;
   justify-content: center;
   padding: 0 17px;
+  margin: 17px 0;
 `
 export const UserProfileContainer = styled.View`
   min-height: 277px;

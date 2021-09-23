@@ -301,7 +301,7 @@ const CreatePet: React.FC = () => {
   return (
     <>
       <Header title="Novo Anúncio" />
-      <Container>
+      <Container showsVerticalScrollIndicator={false}>
         <FormContainer>
           <Form
             ref={formRef}

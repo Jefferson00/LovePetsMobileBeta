@@ -11,6 +11,7 @@ import getDistanceLocation from '../../../utils/getDistanceLocation';
 import getDistanceTime from '../../../utils/getDistanceTime';
 import handleContactWhatsapp from '../../../utils/handleContactWhatsapp';
 import handleShare from '../../../utils/handleShare';
+import CardContent from '../../../components/CardContent';
 
 import DefaultImg from '../../../assets/default.png';
 
@@ -92,88 +93,14 @@ const FavPets: React.FC = () => {
                       contentContainerStyle={{ borderRadius: 20, overflow: 'hidden' }}
                     />
                   )}
-                  <Title>
-                    {item.pet.name}
-                  </Title>
-
-                  <InfoContainer>
-                    <Description>
-                      {item.pet.age}
-                    </Description>
-
-                    {item.pet.gender === 'male' ?
-                      (
-                        <Icon name="male" size={20} color='#129CBA' style={{ marginLeft: 25 }} />
-                      ) :
-                      (
-                        <Icon name="female" size={20} color='#ED9090' style={{ marginLeft: 25 }} />
-                      )
-                    }
-                  </InfoContainer>
-
-                  <DescriptionContainer>
-                    <Description>
-                      {item.pet.description}
-                    </Description>
-                  </DescriptionContainer>
-
-                  <Main>
-                    <Subtitle>
-                      Entrar em contato:
-                    </Subtitle>
-
-                    <ContactContainer>
-                      <UserInformation>
-                        {item.pet.user_avatar ?
-                          <UserAvatar source={{ uri: item.pet.user_avatar }} />
-                          :
-                          <UserAvatar source={DefaultImg} />
-                        }
-                        <Description style={{ marginHorizontal: 8 }}>
-                          {item.pet.user_name}
-                        </Description>
-                        <TouchableOpacity onPress={() => handleContactWhatsapp(item.pet.name, item.pet.user_phone)}>
-                          <Icon name="logo-whatsapp" size={30} color="#4EC953" />
-                        </TouchableOpacity>
-                      </UserInformation>
-
-                      {/*<TinyText>
-                        Brasília-DF
-                      </TinyText>*/}
-                    </ContactContainer>
-
-                    <ActionsContainer>
-                      <SharedContainer onPress={() => handleShare(item.id)}>
-                        <Icon name="share-social" size={25} color="#12BABA" style={{ marginRight: 6 }} />
-                        <TinyText>Compartilhar</TinyText>
-                      </SharedContainer>
-
-                      <ReportContainer>
-                        <Icon name="alert-circle" size={25} color="#BA1212" style={{ marginRight: 6 }} />
-                        <TinyText>Denunciar</TinyText>
-                      </ReportContainer>
-                    </ActionsContainer>
-                  </Main>
-
-                  <LocationContainer>
-                    <TinyText>
-                      {getDistanceLocation({
-                        fromLat: String(currentLocation.lat),
-                        fromLon: String(currentLocation.lon),
-                        toLat: item.pet.location_lat,
-                        toLon: item.pet.location_lon,
-                      }) + ' km'}
-                    </TinyText>
-                    <TinyText style={{ textAlign: 'center', fontSize: 9 }}>
-                      {getDistanceTime(item.pet.created_at)}
-                    </TinyText>
-                  </LocationContainer>
 
                   <DeleteContainer>
                     <FavButton onPress={() => handleDeleteFavPet(item.id)}>
                       <Icon name="heart" size={30} color='#BA1212' />
                     </FavButton>
                   </DeleteContainer>
+
+                  <CardContent item={item.pet} />
                 </CardPet>
               )}
             />

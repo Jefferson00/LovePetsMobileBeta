@@ -1,6 +1,14 @@
 import styled from 'styled-components/native';
 
+import { Dimensions } from 'react-native';
 
+let logoHeight = 'auto';
+let logoWidth = 'auto';
+
+if (Dimensions.get('window').height < 800) {
+  logoHeight = '65px';
+  logoWidth = '65px';
+}
 
 export const Container = styled.View`
   flex: 1;
@@ -58,5 +66,7 @@ export const LinkSignUpText = styled.Text`
   color: #9B0F0F;
   margin-left: 8px;
 `
+export const Logo = styled.Image`
 
+`
 

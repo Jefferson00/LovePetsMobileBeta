@@ -312,7 +312,7 @@ const UpdatePet: React.FC = () => {
   return (
     <>
       <Header title="Atualizar Anúncio" />
-      <Container>
+      <Container showsVerticalScrollIndicator={false}>
         <FormContainer>
           <Form
             ref={formRef}

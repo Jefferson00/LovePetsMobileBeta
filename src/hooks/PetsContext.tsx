@@ -32,13 +32,17 @@ export const PetsProvider: React.FC = ({ children }) => {
 
   let pets: IPetsData[] = [];
   const loadMyPets = useCallback(async () => {
-    const response = await api.get('/pets/me');
+    try {
+      const response = await api.get('/pets/me');
 
-    pets = response.data;
-    pets = await setMyPetImages(pets);
+      pets = response.data;
+      pets = await setMyPetImages(pets);
 
-    if (JSON.stringify(pets) !== JSON.stringify(myPets)) {
-      setMyPets(pets);
+      if (JSON.stringify(pets) !== JSON.stringify(myPets)) {
+        setMyPets(pets);
+      }
+    } catch (error) {
+
     }
   }, [myPets, pets]);
 

@@ -1,9 +1,9 @@
 import React, { useRef, useCallback, useState } from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useAuth } from '../../../../hooks/AuthContext';
-import { usePets } from '../../../..//hooks/PetsContext';
-import { useLocation } from '../../../..//hooks/LocationContext';
-import { IPetsData } from '../../../../@types/Pets/IPetsData';
+import { useAuth } from '../../hooks/AuthContext';
+import { usePets } from '../../hooks/PetsContext';
+import { useLocation } from '../../hooks/LocationContext';
+import { IPetsData } from '../../@types/Pets/IPetsData';
 import { useNavigation } from '@react-navigation/native';
 import { RadioButton } from 'react-native-paper';
 
@@ -46,14 +46,14 @@ import {
 } from './styles';
 
 
-import api from '../../../../services/api';
+import api from '../../services/api';
 
-import getDistanceLocation from '../../../../utils/getDistanceLocation';
-import getDistanceTime from '../../../../utils/getDistanceTime';
-import handleContactWhatsapp from '../../../../utils/handleContactWhatsapp';
-import handleShare from '../../../../utils/handleShare';
+import getDistanceLocation from '../../utils/getDistanceLocation';
+import getDistanceTime from '../../utils/getDistanceTime';
+import handleContactWhatsapp from '../../utils/handleContactWhatsapp';
+import handleShare from '../../utils/handleShare';
 
-import DefaultImg from '../../../../assets/default.png';
+import DefaultImg from '../../assets/default.png';
 
 interface CardContentProps {
   item: IPetsData;

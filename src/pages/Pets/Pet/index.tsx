@@ -8,7 +8,7 @@ import {
 } from './styles';
 
 import TabMenu from '../../../components/TabMenu';
-import CardContent from '../../Home/components/CardContent';
+import CardContent from '../../../components/CardContent';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 

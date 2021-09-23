@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import { ScrollView } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Feather';
 
@@ -47,78 +48,81 @@ const Profile: React.FC = () => {
 
   return (
     <>
-      <Container>
-        <Header title="Perfil" />
+      <Header title="Perfil" />
+      <ScrollView>
+        <Container>
 
-        <UserProfileContainer>
-          <ImageContainer>
-            {user.avatar_url ?
-              <UserAvatar source={{ uri: user.avatar_url }} />
-              :
-              <UserAvatar source={DefaultImg} />
-            }
-          </ImageContainer>
+          <UserProfileContainer>
+            <ImageContainer>
+              {user.avatar_url ?
+                <UserAvatar source={{ uri: user.avatar_url }} />
+                :
+                <UserAvatar source={DefaultImg} />
+              }
+            </ImageContainer>
 
-          <UserName>
-            {user.name}
-          </UserName>
-          {/*<LocationText>
+            <UserName>
+              {user.name}
+            </UserName>
+            {/*<LocationText>
             Brasília-DF
           </LocationText>*/}
 
-          <EditContainer onPress={() => navigation.navigate('UpdateProfile')}>
-            <Icon name="edit-2" size={20} color="#12BABA" />
-            <EditText>
-              Editar Perfil
-            </EditText>
-          </EditContainer>
+            <EditContainer onPress={() => navigation.navigate('UpdateProfile')}>
+              <Icon name="edit-2" size={20} color="#12BABA" />
+              <EditText>
+                Editar Perfil
+              </EditText>
+            </EditContainer>
 
-        </UserProfileContainer>
+          </UserProfileContainer>
 
-        <ProfileButton onPress={() => navigation.navigate('MyPets')}>
-          <ProfileButtonText>
-            Meus Anúncios
-          </ProfileButtonText>
-        </ProfileButton>
+          <ProfileButton onPress={() => navigation.navigate('MyPets')}>
+            <ProfileButtonText>
+              Meus Anúncios
+            </ProfileButtonText>
+          </ProfileButton>
 
-        <ProfileButton onPress={() => navigation.navigate('FavPets')}>
-          <ProfileButtonText>
-            Meus Favoritos
-          </ProfileButtonText>
-        </ProfileButton>
+          <ProfileButton onPress={() => navigation.navigate('FavPets')}>
+            <ProfileButtonText>
+              Meus Favoritos
+            </ProfileButtonText>
+          </ProfileButton>
 
-        <ProfileButton>
-          <ProfileButtonText>
-            Ajuda
-          </ProfileButtonText>
-        </ProfileButton>
+          <ProfileButton>
+            <ProfileButtonText>
+              Ajuda
+            </ProfileButtonText>
+          </ProfileButton>
 
-        <ProfileButton onPress={signOut}>
-          <ProfileButtonText>
-            Sair
-          </ProfileButtonText>
-        </ProfileButton>
+          <ProfileButton onPress={signOut}>
+            <ProfileButtonText>
+              Sair
+            </ProfileButtonText>
+          </ProfileButton>
 
-        <ProfileButton style={{ backgroundColor: '#BA1212' }} onPress={handleDeleteOpenModal}>
-          <ProfileButtonText style={{ color: '#FFFFFF' }}>
-            Excluir conta
-          </ProfileButtonText>
-        </ProfileButton>
+          <ProfileButton style={{ backgroundColor: '#BA1212' }} onPress={handleDeleteOpenModal}>
+            <ProfileButtonText style={{ color: '#FFFFFF' }}>
+              Excluir conta
+            </ProfileButtonText>
+          </ProfileButton>
 
-        <ModalComponent
-          title="Deseja excluir seu conta?"
-          type="confirmation"
-          icon={() => (
-            <Icon name="alert-circle" size={45} color='#BA1212' />
-          )}
-          transparent
-          visible={modalVisible}
-          handleCancel={handleCancelDelete}
-          handleConfirm={handleDeleteAccount}
-          animationType="slide"
-        />
+          <ModalComponent
+            title="Deseja excluir seu conta?"
+            type="confirmation"
+            icon={() => (
+              <Icon name="alert-circle" size={45} color='#BA1212' />
+            )}
+            transparent
+            visible={modalVisible}
+            handleCancel={handleCancelDelete}
+            handleConfirm={handleDeleteAccount}
+            animationType="slide"
+          />
 
-      </Container>
+        </Container>
+      </ScrollView>
+
       <TabMenu />
     </>
   )

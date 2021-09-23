@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { ActivityIndicator, Image, TextInput } from 'react-native';
+import { ActivityIndicator, Image, TextInput, ScrollView } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Feather';
 import ModalIcon from 'react-native-vector-icons/Ionicons';
@@ -24,17 +24,18 @@ import {
   LinkSignUpContainer,
   LinkSignUpText,
   FormTitle,
+  Logo,
 } from './styles';
 import { useNavigation } from '@react-navigation/core';
 import getValidationErrors from '../../utils/getValidationErrors';
 import api from '../../services/api';
 
-interface SignUpFormData{
-  name:string;
-  email:string;
-  password:string;
-  confirmPassword:string;
-  phone:string;
+interface SignUpFormData {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  phone: string;
 }
 
 const SignUp: React.FC = () => {
@@ -52,7 +53,7 @@ const SignUp: React.FC = () => {
   const [modalTitle, setModalTitle] = useState('');
   const [modalSubtitle, setModalSubtitle] = useState('');
 
-  const handleSignUp = useCallback(async (data:SignUpFormData) => {
+  const handleSignUp = useCallback(async (data: SignUpFormData) => {
     setLoading(true);
     try {
       formRef.current?.setErrors({});
@@ -69,7 +70,7 @@ const SignUp: React.FC = () => {
         abortEarly: false,
       });
 
-      await api.post('/users', data );
+      await api.post('/users', data);
 
       setLoading(false);
       setModalTitle('Cadastro realizado!');
@@ -82,7 +83,7 @@ const SignUp: React.FC = () => {
       }, 1000);
 
     } catch (error) {
-      if (error instanceof Yup.ValidationError){
+      if (error instanceof Yup.ValidationError) {
         const errors = getValidationErrors(error);
 
         formRef.current?.setErrors(errors);
@@ -102,9 +103,9 @@ const SignUp: React.FC = () => {
       setModalVisible(true);
       setLoading(false);
     }
-  },[]);
+  }, []);
 
-  const handleConfirm = useCallback(async() => {
+  const handleConfirm = useCallback(async () => {
     setModalVisible(false);
   }, []);
 
@@ -115,123 +116,125 @@ const SignUp: React.FC = () => {
       justifyContent: 'center',
 
     }}>
-      <Container>
-        <Image source={logoImg} />
+      <ScrollView style={{ width: '100%' }} showsVerticalScrollIndicator={false}>
+        <Container>
+          <Logo source={logoImg} />
 
-        <Title>
-          Love Pets
-        </Title>
-        <Subtitle>
-          Amor aos animais
-        </Subtitle>
+          <Title>
+            Love Pets
+          </Title>
+          <Subtitle>
+            Amor aos animais
+          </Subtitle>
 
-        <FormContainer>
-          <KeyboardAwareScrollView
-            resetScrollToCoords={{ x: 0, y: 0 }}
-            scrollEnabled
-            showsVerticalScrollIndicator={false}
-          >
-            {loading && (
-              <ActivityIndicator size="large" color="#F43434"/>
-            )}
-            <FormTitle>
-              Cadastro
-            </FormTitle>
+          <FormContainer>
+            <KeyboardAwareScrollView
+              resetScrollToCoords={{ x: 0, y: 0 }}
+              scrollEnabled
+              showsVerticalScrollIndicator={false}
+            >
+              {loading && (
+                <ActivityIndicator size="large" color="#F43434" />
+              )}
+              <FormTitle>
+                Cadastro
+              </FormTitle>
 
-            <Form ref={formRef} onSubmit={handleSignUp}>
-              <Input
-                name="email"
-                icon="mail"
-                placeholder="e-mail"
-                autoCapitalize="none"
-                autoCorrect={false}
-                keyboardType="email-address"
-                returnKeyType="next"
-                onSubmitEditing={() =>{
-                  inputNameRef.current?.focus();
-                }}
-              />
-              <Input
-                ref={inputNameRef}
-                name="name"
-                icon="user"
-                placeholder="nome"
-                autoCapitalize="words"
-                returnKeyType="next"
-                onSubmitEditing={() =>{
-                  inputPhoneRef.current?.focus();
-                }}
-              />
-              <Input
+              <Form ref={formRef} onSubmit={handleSignUp}>
+                <Input
+                  name="email"
+                  icon="mail"
+                  placeholder="e-mail"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="email-address"
+                  returnKeyType="next"
+                  onSubmitEditing={() => {
+                    inputNameRef.current?.focus();
+                  }}
+                />
+                <Input
+                  ref={inputNameRef}
+                  name="name"
+                  icon="user"
+                  placeholder="nome"
+                  autoCapitalize="words"
+                  returnKeyType="next"
+                  onSubmitEditing={() => {
+                    inputPhoneRef.current?.focus();
+                  }}
+                />
+                <Input
                   ref={inputPhoneRef}
                   name="phone"
                   icon="phone"
                   placeholder="whatsapp"
                   keyboardType="phone-pad"
                   returnKeyType="next"
-                  onSubmitEditing={() =>{
+                  onSubmitEditing={() => {
                     inputPasswordRef.current?.focus();
                   }}
-              />
-              <Input
-                ref={inputPasswordRef}
-                name="password"
-                icon="lock"
-                placeholder="senha"
-                secureTextEntry
-                returnKeyType="next"
-                onSubmitEditing={() =>{
-                  inputConfirmPasswordRef.current?.focus();
-                }}
-              />
-              <Input
-                ref={inputConfirmPasswordRef}
-                name="confirmPassword"
-                icon="lock"
-                placeholder="confirmar senha"
-                secureTextEntry
-                returnKeyType="send"
-                onSubmitEditing={() =>{
+                />
+                <Input
+                  ref={inputPasswordRef}
+                  name="password"
+                  icon="lock"
+                  placeholder="senha"
+                  secureTextEntry
+                  returnKeyType="next"
+                  onSubmitEditing={() => {
+                    inputConfirmPasswordRef.current?.focus();
+                  }}
+                />
+                <Input
+                  ref={inputConfirmPasswordRef}
+                  name="confirmPassword"
+                  icon="lock"
+                  placeholder="confirmar senha"
+                  secureTextEntry
+                  returnKeyType="send"
+                  onSubmitEditing={() => {
+                    formRef.current?.submitForm();
+                  }}
+                />
+
+                <Button borderColor="transparent" title="Cadastrar" onPress={() => {
                   formRef.current?.submitForm();
-                }}
-              />
+                }} />
+              </Form>
 
-              <Button borderColor="transparent" title="Cadastrar" onPress={() => {
-                formRef.current?.submitForm();
-              }}/>
-            </Form>
+              <LinkSignUpContainer onPress={() => navigation.goBack()}>
+                <LinkSignUpText>
+                  Já tem uma conta?
+                </LinkSignUpText>
+                <LinkSignUpText style={{ fontFamily: 'Roboto-Medium' }}>
+                  Entre
+                </LinkSignUpText>
+                <Icon name="log-in" size={20} color="#9B0F0F" />
+              </LinkSignUpContainer>
 
-            <LinkSignUpContainer onPress={() => navigation.goBack()}>
-              <LinkSignUpText>
-                Já tem uma conta?
-            </LinkSignUpText>
-              <LinkSignUpText style={{ fontFamily: 'Roboto-Medium' }}>
-                Entre
-            </LinkSignUpText>
-              <Icon name="log-in" size={20} color="#9B0F0F" />
-            </LinkSignUpContainer>
-
-          </KeyboardAwareScrollView>
-          <ModalComponent
+            </KeyboardAwareScrollView>
+            <ModalComponent
               title={modalTitle}
               subtitle={modalSubtitle}
               type={modalType}
               icon={() => {
-                if(modalType === 'error' ){
-                  return (<ModalIcon name="alert-circle" size={45} color='#BA1212'/>)
-                }else if(modalType === 'success' ){
-                  return (<ModalIcon name="checkmark-circle" size={45} color='#12BABA'/>)
-                }else{
-                  return (<ModalIcon name="alert-circle" size={45} color='#BA1212'/>)
+                if (modalType === 'error') {
+                  return (<ModalIcon name="alert-circle" size={45} color='#BA1212' />)
+                } else if (modalType === 'success') {
+                  return (<ModalIcon name="checkmark-circle" size={45} color='#12BABA' />)
+                } else {
+                  return (<ModalIcon name="alert-circle" size={45} color='#BA1212' />)
                 }
               }}
               transparent
               visible={modalVisible}
               handleConfirm={handleConfirm}
               animationType="slide"
-          />
-        </FormContainer>
-      </Container>
+            />
+          </FormContainer>
+        </Container>
+      </ScrollView>
     </LinearGradient>
   );
 }
